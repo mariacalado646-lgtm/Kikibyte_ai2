@@ -1,7 +1,7 @@
-import { useState } from 'react';
-import { useNavigate, useLocation } from 'react-router';
-import { Menu, X, LogIn, LogOut, User } from 'lucide-react';
-import logoImg from '../assets/logo.png';
+import { useState } from "react";
+import { useNavigate, useLocation } from "react-router";
+import { Menu, X, LogIn, LogOut, User } from "lucide-react";
+import logoImg from "../assets/logo.png";
 // import { ClientNotifications } from './ClientNotifications';
 
 export function Navbar() {
@@ -9,38 +9,37 @@ export function Navbar() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const isAuthenticated = localStorage.getItem('user_authenticated') === 'true';
-  const userType = localStorage.getItem('user_type');
-  const username = localStorage.getItem('username');
+  const isAuthenticated = localStorage.getItem("user_authenticated") === "true";
+  const userType = localStorage.getItem("user_type");
+  const username = localStorage.getItem("username");
 
   const handleLogout = () => {
-    localStorage.removeItem('user_authenticated');
-    localStorage.removeItem('user_type');
-    localStorage.removeItem('username');
-    localStorage.removeItem('client_id');
-    navigate('/');
+    localStorage.removeItem("user_authenticated");
+    localStorage.removeItem("user_type");
+    localStorage.removeItem("username");
+    localStorage.removeItem("client_id");
+    navigate("/");
   };
 
-  const scrollToSection = id => {
-  // If not on home page, navigate there first
-  if (location.pathname !== "/") {
-    navigate("/")
-    setTimeout(() => {
-      const element = document.getElementById(id)
-      if (element) element.scrollIntoView({ behavior: "smooth" })
-    }, 100)
-  } else {
-    const element = document.getElementById(id)
-    if (element) element.scrollIntoView({ behavior: "smooth" })
-  }
-  setIsMenuOpen(false)
-}
-
+  const scrollToSection = (id) => {
+    // If not on home page, navigate there first
+    if (location.pathname !== "/") {
+      navigate("/");
+      setTimeout(() => {
+        const element = document.getElementById(id);
+        if (element) element.scrollIntoView({ behavior: "smooth" });
+      }, 100);
+    } else {
+      const element = document.getElementById(id);
+      if (element) element.scrollIntoView({ behavior: "smooth" });
+    }
+    setIsMenuOpen(false);
+  };
 
   const handleLogoClick = () => {
-    navigate('/');
+    navigate("/");
     setTimeout(() => {
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      window.scrollTo({ top: 0, behavior: "smooth" });
     }, 100);
   };
 
@@ -49,42 +48,56 @@ export function Navbar() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
-          <div className="flex items-center gap-3 cursor-pointer" onClick={handleLogoClick}>
+          <div
+            className="flex items-center gap-3 cursor-pointer"
+            onClick={handleLogoClick}
+          >
             <img src={logoImg} alt="KikiByte Logo" className="h-12 w-12" />
-            <span className="text-2xl text-primary font-semibold">KikiByte</span>
+            <span className="text-2xl text-primary font-semibold">
+              KikiByte
+            </span>
           </div>
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center gap-8">
-            <button onClick={() => scrollToSection('about')} className="text-foreground hover:text-primary transition-colors">
+            <button
+              onClick={() => scrollToSection("about")}
+              className="text-foreground hover:text-primary transition-colors"
+            >
               Sobre
             </button>
-            <button onClick={() => scrollToSection('services')} className="text-foreground hover:text-primary transition-colors">
+            <button
+              onClick={() => scrollToSection("services")}
+              className="text-foreground hover:text-primary transition-colors"
+            >
               Serviços
             </button>
-            <button onClick={() => scrollToSection('compliance')} className="text-foreground hover:text-primary transition-colors">
+            <button
+              onClick={() => scrollToSection("compliance")}
+              className="text-foreground hover:text-primary transition-colors"
+            >
               Conformidade
             </button>
-            <button 
-              onClick={() => scrollToSection('contact')} 
+            <button
+              onClick={() => scrollToSection("contact")}
               className="text-foreground hover:text-primary transition-colors"
             >
               Contacto
             </button>
-            
+
             {isAuthenticated ? (
               <>
-                {userType === 'admin' && (
+                {userType === "admin" && (
                   <button
-                    onClick={() => navigate('/admin')}
+                    onClick={() => navigate("/admin")}
                     className="text-foreground hover:text-primary transition-colors"
                   >
                     Administração
                   </button>
                 )}
-                {userType === 'gestor' && (
+                {userType === "gestor" && (
                   <button
-                    onClick={() => navigate('/gestor')}
+                    onClick={() => navigate("/gestor")}
                     className="text-foreground hover:text-primary transition-colors"
                   >
                     Painel Gestor
@@ -118,7 +131,7 @@ export function Navbar() {
           </div>
 
           {/* Mobile Menu Button */}
-          <button 
+          <button
             className="md:hidden p-2"
             onClick={() => setIsMenuOpen(!isMenuOpen)}
             aria-label="Toggle menu"
@@ -132,44 +145,50 @@ export function Navbar() {
       {isMenuOpen && (
         <div className="md:hidden bg-white border-t border-border">
           <div className="px-4 py-4 space-y-3">
-            <button 
-              onClick={() => scrollToSection('about')} 
+            <button
+              onClick={() => scrollToSection("about")}
               className="block w-full text-left py-2 text-foreground hover:text-primary transition-colors"
             >
               Sobre
             </button>
-            <button 
-              onClick={() => scrollToSection('services')} 
+            <button
+              onClick={() => scrollToSection("services")}
               className="block w-full text-left py-2 text-foreground hover:text-primary transition-colors"
             >
               Serviços
             </button>
-            <button 
-              onClick={() => scrollToSection('compliance')} 
+            <button
+              onClick={() => scrollToSection("compliance")}
               className="block w-full text-left py-2 text-foreground hover:text-primary transition-colors"
             >
               Conformidade
             </button>
-            <button 
-              onClick={() => scrollToSection('contact')} 
+            <button
+              onClick={() => scrollToSection("contact")}
               className="block w-full text-left py-2 text-foreground hover:text-primary transition-colors"
             >
               Contacto
             </button>
-            
+
             {isAuthenticated ? (
               <>
-                {userType === 'admin' && (
+                {userType === "admin" && (
                   <button
-                    onClick={() => { navigate('/admin'); setIsMenuOpen(false); }}
+                    onClick={() => {
+                      navigate("/admin");
+                      setIsMenuOpen(false);
+                    }}
                     className="block w-full text-left py-2 text-foreground hover:text-primary transition-colors"
                   >
                     Administração
                   </button>
                 )}
-                {userType === 'gestor' && (
+                {userType === "gestor" && (
                   <button
-                    onClick={() => { navigate('/gestor'); setIsMenuOpen(false); }}
+                    onClick={() => {
+                      navigate("/gestor");
+                      setIsMenuOpen(false);
+                    }}
                     className="block w-full text-left py-2 text-foreground hover:text-primary transition-colors"
                   >
                     Painel Gestor
@@ -181,7 +200,7 @@ export function Navbar() {
                       <User size={18} />
                       <span className="text-sm">{username}</span>
                     </div>
-                    {userType === 'client' && <ClientNotifications />}
+                    {userType === "client" && <ClientNotifications />}
                   </div>
                   <button
                     onClick={handleLogout}
@@ -194,7 +213,10 @@ export function Navbar() {
               </>
             ) : (
               <button
-                onClick={() => { navigate('/login'); setIsMenuOpen(false); }}
+                onClick={() => {
+                  navigate("/login");
+                  setIsMenuOpen(false);
+                }}
                 className="w-full flex items-center justify-center gap-2 bg-primary text-primary-foreground px-4 py-2 rounded-lg hover:bg-accent transition-colors"
               >
                 <LogIn size={18} />

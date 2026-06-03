@@ -1,22 +1,25 @@
-import { Target, Eye, Award } from 'lucide-react';
+import { Target, Eye, Award } from "lucide-react";
 
 export function About() {
   const values = [
     {
       icon: Target,
-      title: 'Missão',
-      description: 'Proteger empresas e organizações através de soluções de cibersegurança inovadoras e personalizadas, garantindo a continuidade dos negócios num mundo digital em constante evolução.'
+      title: "Missão",
+      description:
+        "Proteger empresas e organizações através de soluções de cibersegurança inovadoras e personalizadas, garantindo a continuidade dos negócios num mundo digital em constante evolução.",
     },
     {
       icon: Eye,
-      title: 'Visão',
-      description: 'Ser a referência nacional em cibersegurança, reconhecida pela excelência técnica, inovação contínua e compromisso com a proteção dos dados dos nossos clientes.'
+      title: "Visão",
+      description:
+        "Ser a referência nacional em cibersegurança, reconhecida pela excelência técnica, inovação contínua e compromisso com a proteção dos dados dos nossos clientes.",
     },
     {
       icon: Award,
-      title: 'Valores',
-      description: 'Integridade, confiança, inovação e excelência. Comprometemo-nos com os mais altos padrões de ética e profissionalismo em todas as nossas ações.'
-    }
+      title: "Valores",
+      description:
+        "Integridade, confiança, inovação e excelência. Comprometemo-nos com os mais altos padrões de ética e profissionalismo em todas as nossas ações.",
+    },
   ];
 
   return (
@@ -28,15 +31,16 @@ export function About() {
             Sobre a <span className="text-primary">KikiByte</span>
           </h2>
           <p className="text-lg text-muted-foreground max-w-3xl mx-auto">
-            Somos uma empresa portuguesa especializada em cibersegurança, dedicada a proteger 
-            o seu negócio contra as ameaças digitais mais sofisticadas.
+            Somos uma empresa portuguesa especializada em cibersegurança,
+            dedicada a proteger o seu negócio contra as ameaças digitais mais
+            sofisticadas.
           </p>
         </div>
 
         {/* Values Grid */}
         <div className="grid md:grid-cols-3 gap-8">
           {values.map((value, index) => (
-            <div 
+            <div
               key={index}
               className="bg-gradient-to-br from-muted/50 to-accent/10 p-8 rounded-2xl border border-border hover:shadow-xl transition-all duration-300 hover:-translate-y-1"
             >
@@ -56,13 +60,15 @@ export function About() {
         {/* Stats */}
         <div className="mt-16 grid grid-cols-2 md:grid-cols-4 gap-8">
           {[
-            { value: '500+', label: 'Clientes Protegidos' },
-            { value: '99.9%', label: 'Uptime Garantido' },
-            { value: '24/7', label: 'Suporte Técnico' },
-            { value: '10+', label: 'Anos de Experiência' }
+            { value: "500+", label: "Clientes Protegidos" },
+            { value: "99.9%", label: "Uptime Garantido" },
+            { value: "24/7", label: "Suporte Técnico" },
+            { value: "10+", label: "Anos de Experiência" },
           ].map((stat, index) => (
             <div key={index} className="text-center">
-              <div className="text-3xl sm:text-4xl !font-bold text-primary mb-2">{stat.value}</div>
+              <div className="text-3xl sm:text-4xl !font-bold text-primary mb-2">
+                {stat.value}
+              </div>
               <div className="text-sm text-muted-foreground">{stat.label}</div>
             </div>
           ))}
