@@ -3,6 +3,7 @@ import cors from 'cors'
 import dotenv from 'dotenv'
 import { sequelize } from './config/database.js'
 import contactRoutes from './routes/contactRoutes.js'
+import artigoRoutes from './routes/artigoRoutes.js'
 
 dotenv.config()
 
@@ -12,6 +13,7 @@ app.use(cors({ origin: 'http://localhost:5173' }))
 app.use(express.json({ limit: '20mb' }))  // base64 files can be large
 
 app.use('/api/contact', contactRoutes)
+app.use('/api/artigos', artigoRoutes)
 
 sequelize.authenticate()
 .then(() => {
