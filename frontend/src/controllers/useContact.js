@@ -35,11 +35,6 @@ export function useContact() {
         setUploadedFiles(prev => prev.filter((_, i) => i !== index))
     }
 
-    // const getFileIcon = (fileName) => {
-    //     const { FileText } = require('lucide-react')
-    //     return <FileText className="w-5 h-5 text-primary" />
-    // }
-
     const handleSubmit = async (e) => {
         e.preventDefault()
         setIsLoading(true)
