@@ -4,7 +4,7 @@ export const submitContact = async (req, res) => {
     try {
         const { nome, email, telefone, empresa, mensagem, doc_base64 } = req.body
         if (!nome || !email || !empresa || !mensagem)
-            return res.status(400).json({ error: 'Name, email and message are required' })
+            return res.status(400).json({ error: 'É obrigatorio preencher o formulario com nome, e-mail, empresa a ser representada e uma mensagem.' })
 
             const submission = await ContactForm.create({
                 nome,
