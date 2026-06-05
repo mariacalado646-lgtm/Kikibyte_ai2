@@ -28,3 +28,16 @@ export const getArtigoPorSlug = async (req, res) => {
         res.status(500).json({ error: 'Server error' })
     }
 }
+
+export const getCategorias = async (req, res) => {
+    try {
+        const categorias = await CategoriaArtigo.findAll({
+            attributes: ['id_categoria', 'nome'],
+            order: [['nome', 'ASC']]
+        })
+        res.json(categorias)
+    } catch (err) {
+        console.error(err)
+        res.status(500).json({ error: 'Server error' })
+    }
+}

@@ -25,68 +25,38 @@ export function News() {
   }, [])
 
   return (
-    <section
-    id="news"
-    className="py-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-background to-muted/30"
-    >
-    <div className="max-w-7xl mx-auto">
-    <div className="text-center mb-16">
-    <h2 className="text-3xl sm:text-4xl !font-bold text-foreground mb-4">
-    Notícias & <span className="text-primary">Artigos Técnicos</span>
-    </h2>
-    <p className="text-lg text-muted-foreground max-w-3xl mx-auto">
-    Mantenha-se atualizado com as últimas tendências, ameaças e soluções
-    no mundo da cibersegurança.
-    </p>
+    <section id="news" className="py-5 kb-bg-muted">
+    <div className="container py-4">
+    <div className="text-center mb-5">
+    <h2 className="kb-section-title">Notícias & <span className="kb-brand">Artigos Técnicos</span></h2>
+    <p className="kb-section-sub">Mantenha-se atualizado com as últimas tendências, ameaças e soluções no mundo da cibersegurança.</p>
     </div>
 
-    <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-    {articles.map((article, index) => (
-      <Link
-      key={index}
-      to={`/noticias/${article.slug}`}
-      className="bg-white rounded-xl overflow-hidden border border-border hover:shadow-xl transition-all duration-300 hover:-translate-y-2 group cursor-pointer"
-      >
-      <div className="relative h-48 overflow-hidden">
-      <img
-      src={article.image}
-      alt={article.title}
-      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-      />
-      <div className="absolute top-4 left-4">
-      <span className="bg-primary text-white text-xs px-3 py-1 rounded-full">
-      {article.category}
-      </span>
+    <div className="row g-4">
+    {articles.map((article, i) => (
+      <div key={i} className="col-md-6 col-lg-4">
+      <Link to={`/noticias/${article.slug}`} className="text-decoration-none">
+      <div className="kb-news-card h-100">
+      <div className="kb-news-img-wrap">
+      <img src={article.image} alt={article.title} className="kb-news-img" />
+      <span className="kb-news-badge">{article.category}</span>
       </div>
+      <div className="p-4">
+      <div className="d-flex align-items-center gap-2 text-muted small mb-3">
+      <Calendar size={14} /><time>{article.date}</time>
       </div>
-
-      <div className="p-6">
-      <div className="flex items-center gap-2 text-sm text-muted-foreground mb-3">
-      <Calendar className="w-4 h-4" />
-      <time>{article.date}</time>
+      <h3 className="kb-card-title">{article.title}</h3>
+      <p className="text-muted small kb-clamp-2">{article.excerpt}</p>
+      <span className="kb-read-more">Ler mais <ArrowRight size={14} /></span>
       </div>
-      <h3 className="text-xl !font-semibold text-foreground mb-3 group-hover:text-primary transition-colors">
-      {article.title}
-      </h3>
-      <p className="text-muted-foreground mb-4 line-clamp-2">
-      {article.excerpt}
-      </p>
-      <span className="flex items-center gap-2 text-primary group-hover:gap-3 transition-all">
-      <span>Ler mais</span>
-      <ArrowRight className="w-4 h-4" />
-      </span>
       </div>
       </Link>
+      </div>
     ))}
     </div>
 
-    <div className="mt-12 text-center">
-    <Link
-    to="/noticias"
-    className="border-2 border-primary text-primary px-8 py-3 rounded-lg hover:bg-primary hover:text-white transition-all"
-    >
-    Ver todos os artigos
-    </Link>
+    <div className="text-center mt-5">
+    <Link to="/noticias" className="btn-kb-outline">Ver todos os artigos</Link>
     </div>
     </div>
     </section>

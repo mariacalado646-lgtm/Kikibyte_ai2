@@ -1,14 +1,21 @@
-/* ── KikiByte Base ── */
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+@import "@fontsource-variable/geist";
+
+/* @import './fonts.css'; */
+@import './styles/theme.css';
+
+@custom-variant dark (&:is(.dark *));
+
 :root {
   --font-size: 16px;
-
-  /* Shadcn/Dialog CSS variables — keep these so Dialog still works */
   --background: #FAFAF9;
   --foreground: #1C1917;
   --card: #ffffff;
   --card-foreground: #1C1917;
-  --popover: #ffffff;
-  --popover-foreground: #1C1917;
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.145 0 0);
   --primary: #78350F;
   --primary-foreground: #FAFAF9;
   --secondary: #A8A29E;
@@ -20,11 +27,170 @@
   --destructive: #d4183d;
   --destructive-foreground: #ffffff;
   --border: rgba(120, 53, 15, 0.15);
-  --input: #f3f3f5;
-  --ring: #78350F;
+  --input: transparent;
+  --input-background: #f3f3f5;
+  --switch-background: #cbced4;
+  --font-weight-medium: 500;
+  --font-weight-normal: 400;
+  --ring: oklch(0.708 0 0);
+  --chart-1: oklch(0.646 0.222 41.116);
+  --chart-2: oklch(0.6 0.118 184.704);
+  --chart-3: oklch(0.398 0.07 227.392);
+  --chart-4: oklch(0.828 0.189 84.429);
+  --chart-5: oklch(0.769 0.188 70.08);
   --radius: 0.625rem;
+  --sidebar: oklch(0.985 0 0);
+  --sidebar-foreground: oklch(0.145 0 0);
+  --sidebar-primary: #78350F;
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.97 0 0);
+  --sidebar-accent-foreground: oklch(0.205 0 0);
+  --sidebar-border: oklch(0.922 0 0);
+  --sidebar-ring: oklch(0.708 0 0);
+}
 
-  /* KikiByte Design Tokens */
+.dark {
+  --background: oklch(0.145 0 0);
+  --foreground: oklch(0.985 0 0);
+  --card: oklch(0.145 0 0);
+  --card-foreground: oklch(0.985 0 0);
+  --popover: oklch(0.145 0 0);
+  --popover-foreground: oklch(0.985 0 0);
+  --primary: oklch(0.985 0 0);
+  --primary-foreground: oklch(0.205 0 0);
+  --secondary: oklch(0.269 0 0);
+  --secondary-foreground: oklch(0.985 0 0);
+  --muted: oklch(0.269 0 0);
+  --muted-foreground: oklch(0.708 0 0);
+  --accent: oklch(0.269 0 0);
+  --accent-foreground: oklch(0.985 0 0);
+  --destructive: oklch(0.396 0.141 25.723);
+  --destructive-foreground: oklch(0.637 0.237 25.331);
+  --border: oklch(0.269 0 0);
+  --input: oklch(0.269 0 0);
+  --ring: oklch(0.439 0 0);
+  --font-weight-medium: 500;
+  --font-weight-normal: 400;
+  --chart-1: oklch(0.488 0.243 264.376);
+  --chart-2: oklch(0.696 0.17 162.48);
+  --chart-3: oklch(0.769 0.188 70.08);
+  --chart-4: oklch(0.627 0.265 303.9);
+  --chart-5: oklch(0.645 0.246 16.439);
+  --sidebar: oklch(0.205 0 0);
+  --sidebar-foreground: oklch(0.985 0 0);
+  --sidebar-primary: oklch(0.488 0.243 264.376);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.269 0 0);
+  --sidebar-accent-foreground: oklch(0.985 0 0);
+  --sidebar-border: oklch(0.269 0 0);
+  --sidebar-ring: oklch(0.439 0 0);
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-input-background: var(--input-background);
+  --color-switch-background: var(--switch-background);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+  }
+
+  /**
+  * Default typography styles for HTML elements (h1-h4, p, label, button, input).
+  * These are in @layer base, so Tailwind utility classes (like text-sm, text-lg) automatically override them.
+  */
+
+  html {
+    font-size: var(--font-size);
+  }
+
+  h1 {
+    font-size: var(--text-2xl);
+    font-weight: var(--font-weight-medium);
+    line-height: 1.5;
+  }
+
+  h2 {
+    font-size: var(--text-xl);
+    font-weight: var(--font-weight-medium);
+    line-height: 1.5;
+  }
+
+  h3 {
+    font-size: var(--text-lg);
+    font-weight: var(--font-weight-medium);
+    line-height: 1.5;
+  }
+
+  h4 {
+    font-size: var(--text-base);
+    font-weight: var(--font-weight-medium);
+    line-height: 1.5;
+  }
+
+  label {
+    font-size: var(--text-base);
+    font-weight: var(--font-weight-medium);
+    line-height: 1.5;
+  }
+
+  button {
+    font-size: var(--text-base);
+    font-weight: var(--font-weight-medium);
+    line-height: 1.5;
+  }
+
+  input {
+    font-size: var(--text-base);
+    font-weight: var(--font-weight-normal);
+    line-height: 1.5;
+  }
+}
+
+
+/* ── KikiByte Design Tokens ── */
+:root {
   --kb-primary: #c2410c;
   --kb-primary-h: #9a3412;
   --kb-accent: #ea580c;
@@ -33,19 +199,7 @@
   --kb-border: #e7e5e4;
 }
 
-html {
-  font-size: var(--font-size);
-  scroll-padding-top: 72px;
-}
-
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-size: 1rem;
-  line-height: 1.5;
-}
-
-/* ── Navbar ── */
+/* Navbar */
 .kb-navbar {
   position: fixed;
   top: 0;
@@ -90,7 +244,7 @@ body {
   border-top: 1px solid var(--kb-border);
 }
 
-/* ── Hero ── */
+/* Hero */
 .kb-hero {
   min-height: 100vh;
   background: linear-gradient(135deg, #f5f0eb 0%, #fafaf9 50%, #fff7ed 100%);
@@ -192,7 +346,7 @@ body {
   }
 }
 
-/* ── Buttons ── */
+/* Buttons */
 .btn-kb-primary {
   background: var(--kb-primary);
   color: #fff;
@@ -206,7 +360,6 @@ body {
   display: inline-flex;
   align-items: center;
   gap: .5rem;
-  cursor: pointer;
 }
 
 .btn-kb-primary:hover:not(:disabled) {
@@ -234,7 +387,6 @@ body {
   align-items: center;
   gap: .5rem;
   text-decoration: none;
-  cursor: pointer;
 }
 
 .btn-kb-outline:hover {
@@ -255,7 +407,6 @@ body {
   display: inline-flex;
   align-items: center;
   gap: .375rem;
-  cursor: pointer;
 }
 
 .btn-kb-outline-sm:hover {
@@ -272,10 +423,9 @@ body {
   display: inline-flex;
   align-items: center;
   gap: .375rem;
-  cursor: pointer;
 }
 
-/* ── Shared ── */
+/* Shared */
 .kb-brand {
   color: var(--kb-primary);
 }
@@ -354,7 +504,7 @@ body {
   color: var(--kb-muted-fg);
 }
 
-/* ── Services ── */
+/* Services */
 .kb-service-card {
   background: #fff;
   padding: 1.5rem;
@@ -387,7 +537,7 @@ body {
   color: #fff;
 }
 
-/* ── Compliance ── */
+/* Compliance */
 .kb-compliance-card {
   background: linear-gradient(135deg, rgba(194, 65, 12, .04), rgba(234, 88, 12, .08));
   padding: 2rem;
@@ -434,14 +584,13 @@ body {
   border-radius: .5rem;
   font-weight: 600;
   transition: background .2s;
-  cursor: pointer;
 }
 
 .kb-banner-btn:hover {
   background: var(--kb-muted);
 }
 
-/* ── News ── */
+/* News */
 .kb-news-card {
   background: #fff;
   border-radius: .75rem;
@@ -483,6 +632,13 @@ body {
   border-radius: 999px;
 }
 
+.kb-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
 .kb-read-more {
   font-size: .875rem;
   color: var(--kb-primary);
@@ -496,7 +652,7 @@ body {
   gap: .625rem;
 }
 
-/* ── Contact ── */
+/* Contact */
 .kb-form-box {
   background: linear-gradient(135deg, rgba(245, 240, 235, .3), rgba(255, 247, 237, .05));
   border: 1px solid var(--kb-border);
@@ -535,13 +691,14 @@ body {
   color: var(--kb-primary) !important;
 }
 
-/* ── Pages ── */
+/* Pages shared */
 .kb-page-wrap {
   min-height: 100vh;
   padding-top: 72px;
   background: #fafaf9;
 }
 
+/* NewsPage hero */
 .kb-news-hero {
   background: linear-gradient(135deg, #f5f0eb 0%, #fafaf9 100%);
 }
@@ -571,6 +728,7 @@ body {
   border-color: var(--kb-primary) !important;
 }
 
+/* Category buttons */
 .kb-cat-btn {
   background: #fff;
   border: 1.5px solid var(--kb-border);
@@ -582,7 +740,6 @@ body {
   align-items: center;
   gap: .375rem;
   transition: border-color .2s, color .2s;
-  cursor: pointer;
 }
 
 .kb-cat-btn:hover {
@@ -596,6 +753,7 @@ body {
   color: #fff !important;
 }
 
+/* Featured card */
 .kb-featured-card {
   transition: box-shadow .3s;
 }
@@ -632,6 +790,7 @@ body {
   border-radius: 999px;
 }
 
+/* Clamp utilities */
 .kb-clamp-2 {
   display: -webkit-box;
   -webkit-line-clamp: 2;
@@ -646,6 +805,7 @@ body {
   overflow: hidden;
 }
 
+/* Spinner */
 .kb-spin {
   animation: kb-rotate 1s linear infinite;
 }
@@ -660,11 +820,11 @@ body {
   }
 }
 
+/* Article page */
 .kb-back-btn {
   background: none;
   border: none;
   transition: color .2s;
-  cursor: pointer;
 }
 
 .kb-back-btn:hover {

@@ -1,13 +1,13 @@
-import { Routes, Route } from 'react-router'
-import { Navbar } from './components/Navbar'
-import { Hero } from './components/Hero'
-import { About } from './components/About'
-import { Services } from './components/Services'
-import { Compliance } from './components/Compliance'
-import { News } from './components/News'
-import { Contact } from './components/Contact'
-import { NewsPage } from './pages/NewsPage'
-import { ArticlePage } from './pages/ArticlePage'
+import { Routes, Route }  from 'react-router'
+import { Navbar }         from './components/Navbar'
+import { Hero }           from './components/Hero'
+import { About }          from './components/About'
+import { Services }       from './components/Services'
+import { Compliance }     from './components/Compliance'
+import { News }           from './components/News'
+import { Contact }        from './components/Contact'
+import { NewsPage }       from './pages/NewsPage'
+import { ArticlePage }    from './pages/ArticlePage'
 
 export default function App() {
   return (
@@ -24,7 +24,7 @@ export default function App() {
       <Contact />
       </>
     } />
-    <Route path="/noticias"       element={<NewsPage />} />
+    <Route path="/noticias"       element={<NewsPage    />} />
     <Route path="/noticias/:slug" element={<ArticlePage />} />
     </Routes>
     </>

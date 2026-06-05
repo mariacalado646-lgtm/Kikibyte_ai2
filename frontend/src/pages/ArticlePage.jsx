@@ -4,11 +4,11 @@ import { Calendar, Clock, ArrowLeft } from 'lucide-react'
 import { fetchArtigoPorSlug } from '../services/newsService'
 
 export function ArticlePage() {
-    const { slug } = useParams()
-    const navigate = useNavigate()
+    const { slug }   = useParams()
+    const navigate   = useNavigate()
     const [article, setArticle] = useState(null)
     const [loading, setLoading] = useState(true)
-    const [error, setError] = useState(null)
+    const [error, setError]     = useState(null)
 
     useEffect(() => {
         fetchArtigoPorSlug(slug)
@@ -18,63 +18,61 @@ export function ArticlePage() {
     }, [slug])
 
     if (loading) return (
-        <div className="min-h-screen flex items-center justify-center text-muted-foreground">
+        <div className="kb-page-wrap d-flex align-items-center justify-content-center text-muted">
         A carregar...
         </div>
     )
 
         if (error) return (
-            <div className="min-h-screen flex flex-col items-center justify-center gap-4">
-            <p className="text-muted-foreground">{error}</p>
-            <button onClick={() => navigate('/noticias')} className="text-primary hover:underline">
+            <div className="kb-page-wrap d-flex flex-column align-items-center justify-content-center gap-3">
+            <p className="text-muted">{error}</p>
+            <button onClick={() => navigate('/noticias')} className="kb-nav-link">
             Voltar às notícias
             </button>
             </div>
         )
 
             return (
-                <div className="min-h-screen bg-background pt-20">
-                <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+                <div className="kb-page-wrap">
+                <div className="container py-5" style={{ maxWidth: 768 }}>
 
                 <button
                 onClick={() => navigate('/noticias')}
-                className="flex items-center gap-2 text-muted-foreground hover:text-primary transition-colors mb-8"
+                className="d-flex align-items-center gap-2 text-muted kb-back-btn mb-4"
                 >
-                <ArrowLeft className="w-4 h-4" /> Voltar às notícias
+                <ArrowLeft size={16} /> Voltar às notícias
                 </button>
 
                 {article.imagem_capa_base64 && (
                     <img
                     src={article.imagem_capa_base64}
                     alt={article.titulo}
-                    className="w-full h-64 object-cover rounded-2xl mb-8"
+                    className="w-100 rounded-4 mb-4 kb-article-img"
                     />
                 )}
 
-                <div className="flex items-center gap-2 mb-4">
-                <span className="bg-primary text-white text-xs px-3 py-1 rounded-full">
+                <div className="mb-3">
+                <span className="kb-news-badge position-static">
                 {article.categoria_artigo?.nome ?? 'Geral'}
                 </span>
                 </div>
 
-                <h1 className="text-3xl sm:text-4xl !font-bold text-foreground mb-4">
-                {article.titulo}
-                </h1>
+                <h1 className="kb-section-title mb-3">{article.titulo}</h1>
 
-                <div className="flex items-center gap-4 text-sm text-muted-foreground mb-8 pb-8 border-b border-border">
-                <span className="flex items-center gap-1.5">
-                <Calendar className="w-4 h-4" />
+                <div className="d-flex align-items-center gap-4 text-muted small mb-4 pb-4 border-bottom">
+                <span className="d-flex align-items-center gap-1">
+                <Calendar size={14} />
                 {article.published_at
                     ? new Date(article.published_at).toLocaleDateString('pt-PT', { day: 'numeric', month: 'long', year: 'numeric' })
-                    : new Date(article.created_at).toLocaleDateString('pt-PT', { day: 'numeric', month: 'long', year: 'numeric' })
+                    : new Date(article.created_at).toLocaleDateString('pt-PT',  { day: 'numeric', month: 'long', year: 'numeric' })
                 }
                 </span>
-                <span className="flex items-center gap-1.5">
-                <Clock className="w-4 h-4" /> 5 min de leitura
+                <span className="d-flex align-items-center gap-1">
+                <Clock size={14} /> 5 min de leitura
                 </span>
                 </div>
 
-                <div className="prose prose-neutral max-w-none text-foreground leading-relaxed">
+                <div className="kb-article-body">
                 {article.conteudo}
                 </div>
 

@@ -9,3 +9,6 @@ api.get('/artigos').then(res => res.data)
 
 export const fetchArtigoPorSlug = (slug) =>
 api.get(`/artigos/${slug}`).then(res => res.data)
+
+export const fetchCategorias = () =>
+api.get('/artigos/categorias').then(res => res.data)
