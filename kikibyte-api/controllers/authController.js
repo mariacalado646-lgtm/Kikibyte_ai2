@@ -1,4 +1,4 @@
-import bcrypt from 'bcrypt'
+import bcrypt from 'bcryptjs'
 import jwt from 'jsonwebtoken'
 import { Utilizador } from '../models/Utilizador.js'
 import { Op } from 'sequelize'
