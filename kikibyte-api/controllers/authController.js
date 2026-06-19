@@ -111,6 +111,48 @@ export const me = async (req, res) => {
     }
 }
 
+export const refresh = async (req, res) => {
+    try {
+        const { token } = req.body
+        if (!token) return res.status(400).json({ error: 'Token é obrigatório' })
+
+        // verify the existing token (even if expired, decode it)
+        let payload
+        try {
+            payload = jwt.verify(token, process.env.JWT_SECRET)
+        } catch {
+            // if expired, decode without verification to get user info
+            payload = jwt.decode(token)
+            if (!payload)
+                return res.status(401).json({ error: 'Token inválido' })
+        }
+
+        // check user still exists and is active
+        const user = await Utilizador.findOne({
+            where: { id_utilizador: payload.id, ativo: true }
+        })
+        if (!user) return res.status(401).json({ error: 'Utilizador não encontrado ou inativo' })
+
+        // issue a fresh token
+        const newToken = jwt.sign(
+            {
+                id:         user.id_utilizador,
+                email:      user.email,
+                role_id:    user.role_id,
+                empresa_id: user.empresa_id,
+                cliente_id: user.cliente_id
+            },
+            process.env.JWT_SECRET,
+            { expiresIn: '7d' }
+        )
+
+        res.json({ token: newToken })
+    } catch (err) {
+        console.error('Refresh error:', err)
+        res.status(500).json({ error: 'Server error' })
+    }
+}
+
 export const changePassword = async (req, res) => {
     try {
         const { currentPassword, newPassword } = req.body

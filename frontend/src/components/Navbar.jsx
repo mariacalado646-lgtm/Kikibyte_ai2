@@ -1,22 +1,24 @@
 import { useState } from 'react'
 import { useNavigate, useLocation } from 'react-router'
 import { Menu, X, LogIn, LogOut, User } from 'lucide-react'
+import { useAuth } from '../context/AuthContext'
 import logoImg from '../assets/logo.png'
 
 export function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const navigate = useNavigate()
   const location = useLocation()
+  const { user, isAuthenticated, logout } = useAuth()
 
-  const isAuthenticated = localStorage.getItem('user_authenticated') === 'true'
-  const userType = localStorage.getItem('user_type')
-  const username = localStorage.getItem('username')
+  const userType =
+    user?.role_id === 1 ? 'admin' :
+    user?.role_id === 2 ? 'gestor' :
+    user?.role_id === 3 ? 'client' : null
+
+  const username = user?.email || user?.nome || ''
 
   const handleLogout = () => {
-    localStorage.removeItem('user_authenticated')
-    localStorage.removeItem('user_type')
-    localStorage.removeItem('username')
-    localStorage.removeItem('client_id')
+    logout()
     navigate('/')
   }
 

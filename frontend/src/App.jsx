@@ -1,11 +1,12 @@
-import { Navbar }    from './components/Navbar'
+import { AuthProvider } from './context/AuthContext'
+import { Navbar } from './components/Navbar'
 import { AppRoutes } from './routes/AppRoutes'
 
 export default function App() {
   return (
-    <>
+    <AuthProvider>
       <Navbar />
       <AppRoutes />
-    </>
+    </AuthProvider>
   )
 }

@@ -2,10 +2,27 @@ import { useState } from "react";
 import { useNavigate } from "react-router";
 import { Lock, LogIn, User, UserCog } from "lucide-react";
 import { toast } from "sonner";
+import { useAuth } from "../context/AuthContext";
+import { login as apiLogin } from "../services/authService";
 import logoImg from "../assets/logo.png";
+
+// Maps user types to their email domain for the lookup
+const EMAIL_MAP = {
+  admin:  (u) => u.includes("@") ? u : `${u}@kikibyte.pt`,
+  gestor: (u) => u.includes("@") ? u : `${u}@kikibyte.pt`,
+  client: (u) => u,  // clients always use raw email
+};
+
+const REDIRECT_BY_TYPE = {
+  admin:  "/admin",
+  gestor: "/gestor",
+  client: "/",
+};
 
 export function AdminLogin() {
   const navigate = useNavigate();
+  const { login: authLogin } = useAuth();
+  const [isLoading, setIsLoading] = useState(false);
   const [credentials, setCredentials] = useState({
     username: "",
     password: "",
@@ -20,76 +37,27 @@ export function AdminLogin() {
     nif: "",
   });
 
-//   const handleSubmit = (e) => {
-//     e.preventDefault();
-//     // Mock authentication - in production, this would verify with backend
-//     if (userType === "admin") {
-//       if (
-//         credentials.username === "admin" &&
-//         credentials.password === "admin123"
-//       ) {
-//         localStorage.setItem("user_authenticated", "true");
-//         localStorage.setItem("user_type", "admin");
-//         localStorage.setItem("username", credentials.username);
-//         toast.success("Login efetuado com sucesso!");
-//         navigate("/admin");
-//       } else {
-//         toast.error("Credenciais inválidas. Tente admin/admin123");
-//       }
-//     } else if (userType === "gestor") {
-//       // Check if gestor exists in localStorage
-//       const gestors = JSON.parse(localStorage.getItem("gestors") || "[]");
-//       const gestor = gestors.find(
-//         (g) =>
-//           !g.isDeleted &&
-//           g.username.toLowerCase() === credentials.username.toLowerCase() &&
-//           g.password === credentials.password,
-//       );
-//
-//       if (gestor) {
-//         // Update last login
-//         const updatedGestors = gestors.map((g) =>
-//           g.id === gestor.id
-//             ? { ...g, lastLogin: new Date().toISOString().split("T")[0] }
-//             : g,
-//         );
-//         localStorage.setItem("gestors", JSON.stringify(updatedGestors));
-//
-//         localStorage.setItem("user_authenticated", "true");
-//         localStorage.setItem("user_type", "gestor");
-//         localStorage.setItem("username", gestor.name);
-//         localStorage.setItem("gestor_id", gestor.id);
-//         toast.success(`Bem-vindo, ${gestor.name}!`);
-//         navigate("/gestor");
-//       } else {
-//         toast.error(
-//           "Credenciais inválidas. Por favor, contacte o administrador.",
-//         );
-//       }
-//     } else {
-//       // Check if client exists in localStorage
-//       const clients = JSON.parse(localStorage.getItem("clients") || "[]");
-//       const client = clients.find(
-//         (c) =>
-//           !c.isDeleted &&
-//           c.email.toLowerCase() === credentials.username.toLowerCase() &&
-//           c.password === credentials.password,
-//       );
-//
-//       if (client) {
-//         localStorage.setItem("user_authenticated", "true");
-//         localStorage.setItem("user_type", "client");
-//         localStorage.setItem("username", client.name);
-//         localStorage.setItem("client_id", client.id);
-//         toast.success(`Bem-vindo, ${client.name}!`);
-//         navigate("/");
-//       } else {
-//         toast.error(
-//           "Credenciais inválidas. Por favor, contacte-nos para criar uma conta.",
-//         );
-//       }
-//     }
-//   };
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setIsLoading(true);
+
+    try {
+      const email = EMAIL_MAP[userType](credentials.username);
+      const { token, user } = await apiLogin(email, credentials.password);
+
+      localStorage.setItem("token", token);
+      localStorage.setItem("user", JSON.stringify(user));
+      authLogin(user);
+
+      toast.success("Login efetuado com sucesso!");
+      navigate(REDIRECT_BY_TYPE[userType]);
+    } catch (err) {
+      const msg = err.response?.data?.error || "Credenciais inválidas.";
+      toast.error(msg);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const handleNewClientSubmit = (e) => {
     e.preventDefault();

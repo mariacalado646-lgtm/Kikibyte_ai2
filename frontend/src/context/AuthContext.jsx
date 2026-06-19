@@ -1,35 +1,50 @@
-import { createContext, useContext, useState } from 'react'
-import axios from 'axios'
+import { createContext, useContext, useState, useEffect } from 'react'
 
 const AuthContext = createContext(null)
 
 export function AuthProvider({ children }) {
     const [user, setUser] = useState(() => {
-        const token = localStorage.getItem('token')
-        if (!token) return null
+        try {
+            const token = localStorage.getItem('token')
+            if (!token) return null
             // decode payload without verifying (verification happens on server)
-            return JSON.parse(atob(token.split('.')[1]))
+            const payload = JSON.parse(atob(token.split('.')[1]))
+            return payload
+        } catch {
+            localStorage.removeItem('token')
+            return null
+        }
     })
 
-    const login = async (email, password) => {
-        const { data } = await axios.post('/api/auth/login', { email, password })
-        localStorage.setItem('token', data.token)
-        setUser(data.user)
-        return data.user
+    const isAuthenticated = !!localStorage.getItem('token')
+
+    const login = (userData) => {
+        setUser(userData)
     }
 
     const logout = () => {
         localStorage.removeItem('token')
+        localStorage.removeItem('user')
         setUser(null)
     }
 
-    // attach token to every axios request automatically
-    axios.defaults.headers.common['Authorization'] =
-    user ? `Bearer ${localStorage.getItem('token')}` : ''
+    const refreshUser = () => {
+        try {
+            const token = localStorage.getItem('token')
+            if (!token) {
+                setUser(null)
+                return
+            }
+            const payload = JSON.parse(atob(token.split('.')[1]))
+            setUser(payload)
+        } catch {
+            setUser(null)
+        }
+    }
 
     return (
-        <AuthContext.Provider value={{ user, login, logout }}>
-        {children}
+        <AuthContext.Provider value={{ user, isAuthenticated, login, logout, refreshUser }}>
+            {children}
         </AuthContext.Provider>
     )
 }
