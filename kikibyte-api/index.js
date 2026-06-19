@@ -30,7 +30,8 @@ dotenv.config()
 
 const app = express()
 
-app.use(cors({ origin: 'http://localhost:5173' }))
+const corsOrigin = process.env.CORS_ORIGIN || 'http://localhost:5173'
+app.use(cors({ origin: corsOrigin.split(',').map(s => s.trim()) }))
 app.use(express.json({ limit: '20mb' }))  // base64 files can be large
 
 app.use('/api/contact',    contactRoutes)
