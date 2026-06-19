@@ -1,39 +1,52 @@
 import { useState } from "react";
 import { Send } from "lucide-react";
 import { toast } from "sonner";
+import { notificacaoService } from "../../services/gestorService";
 
 export function SendNotification({ clientId, clientName }) {
   const [type, setType] = useState("info");
   const [title, setTitle] = useState("");
   const [message, setMessage] = useState("");
 
-  const handleSend = () => {
+  const handleSend = async () => {
     if (!title.trim() || !message.trim()) {
       toast.error("Preencha o título e a mensagem");
       return;
     }
 
-    const allNotifications = JSON.parse(
-      localStorage.getItem("client_notifications") || "[]",
-    );
-    const notification = {
-      id: Date.now(),
-      clientId,
-      type,
-      title,
-      message,
-      createdAt: new Date().toISOString(),
-      read: false,
-    };
-    allNotifications.push(notification);
-    localStorage.setItem(
-      "client_notifications",
-      JSON.stringify(allNotifications),
-    );
+    try {
+      // Save to backend (uses the current user from JWT as utilizador_id)
+      await notificacaoService.criar({
+        titulo: `[${clientName}] ${title}`,
+        mensagem: message,
+      });
 
-    toast.success(`Notificação enviada a ${clientName}`);
-    setTitle("");
-    setMessage("");
+      // Also keep in localStorage for client-side notification display
+      const allNotifications = JSON.parse(
+        localStorage.getItem("client_notifications") || "[]",
+      );
+      const notification = {
+        id: Date.now(),
+        clientId,
+        type,
+        title: `[${clientName}] ${title}`,
+        message,
+        createdAt: new Date().toISOString(),
+        read: false,
+      };
+      allNotifications.push(notification);
+      localStorage.setItem(
+        "client_notifications",
+        JSON.stringify(allNotifications),
+      );
+
+      toast.success(`Notificação enviada a ${clientName}`);
+      setTitle("");
+      setMessage("");
+    } catch (err) {
+      console.error("Erro ao enviar notificação:", err);
+      toast.error("Erro ao enviar notificação");
+    }
   };
 
   return (

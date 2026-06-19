@@ -57,6 +57,11 @@ body {
   border-bottom: 1px solid var(--kb-border);
 }
 
+/* ── Main content offset (fixed navbar is 64px tall) ── */
+.kb-main-content {
+  padding-top: 64px;
+}
+
 .kb-logo {
   cursor: pointer;
 }
@@ -96,7 +101,6 @@ body {
   background: linear-gradient(135deg, #f5f0eb 0%, #fafaf9 50%, #fff7ed 100%);
   position: relative;
   overflow: hidden;
-  padding-top: 80px;
 }
 
 .kb-hero::before {

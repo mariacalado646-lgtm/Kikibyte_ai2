@@ -11,6 +11,7 @@ import {
   Archive,
 } from "lucide-react";
 import { toast } from "sonner";
+import { clienteService } from "../../services/gestorService";
 import { SendNotification } from "../../components/gestor/SendNotification";
 
 export function GestorClienteDetalhes() {
@@ -20,15 +21,24 @@ export function GestorClienteDetalhes() {
   const [activeTab, setActiveTab] = useState("geral");
 
   useEffect(() => {
-    const clients = JSON.parse(localStorage.getItem("clients") || "[]");
-    const foundClient = clients.find((c) => c.id === parseInt(id || "0"));
-    if (!foundClient || foundClient.isDeleted) {
-      toast.error("Cliente não encontrado");
-      navigate("/gestor/clientes");
-    } else {
-      setClient(foundClient);
-    }
+    loadClient();
   }, [id, navigate]);
+
+  const loadClient = async () => {
+    try {
+      const data = await clienteService.obter(id);
+      if (!data) {
+        toast.error("Cliente não encontrado");
+        navigate("/gestor/clientes");
+      } else {
+        setClient(data);
+      }
+    } catch (err) {
+      console.error("Erro ao carregar cliente:", err);
+      toast.error("Erro ao carregar dados do cliente");
+      navigate("/gestor/clientes");
+    }
+  };
 
   if (!client) {
     return (
@@ -63,12 +73,12 @@ export function GestorClienteDetalhes() {
         <div className="d-flex flex-column md-flex-row align-items-md-start justify-content-md-between" style={{ gap: "1rem", marginBottom: "1rem" }}>
           <div>
             <h1 className="text-3xl fw-bold text-foreground" style={{ marginBottom: "0.5rem" }}>
-              {client.name}
+              {client.nome}
             </h1>
             <p className="text-muted-foreground" style={{ margin: 0 }}>{client.email}</p>
           </div>
           <div style={{ width: "100%", maxWidth: "16rem" }}>
-            <SendNotification clientId={client.id} clientName={client.name} />
+            <SendNotification clientId={client.id_cliente} clientName={client.nome} />
           </div>
         </div>
       </div>
@@ -116,7 +126,7 @@ export function GestorClienteDetalhes() {
                 <label className="text-sm fw-medium text-muted-foreground" style={{ display: "block", marginBottom: "0.25rem" }}>
                   Nome da Empresa
                 </label>
-                <p className="text-foreground" style={{ marginTop: "0.25rem", marginBottom: 0 }}>{client.name}</p>
+                <p className="text-foreground" style={{ marginTop: "0.25rem", marginBottom: 0 }}>{client.nome}</p>
               </div>
               <div>
                 <label className="text-sm fw-medium text-muted-foreground" style={{ display: "block", marginBottom: "0.25rem" }}>
@@ -128,7 +138,7 @@ export function GestorClienteDetalhes() {
                 <label className="text-sm fw-medium text-muted-foreground" style={{ display: "block", marginBottom: "0.25rem" }}>
                   Telefone
                 </label>
-                <p className="text-foreground" style={{ marginTop: "0.25rem", marginBottom: 0 }}>{client.phone}</p>
+                <p className="text-foreground" style={{ marginTop: "0.25rem", marginBottom: 0 }}>{client.telefone}</p>
               </div>
               <div>
                 <label className="text-sm fw-medium text-muted-foreground" style={{ display: "block", marginBottom: "0.25rem" }}>
@@ -141,14 +151,14 @@ export function GestorClienteDetalhes() {
                   Morada
                 </label>
                 <p className="text-foreground" style={{ marginTop: "0.25rem", marginBottom: 0 }}>
-                  {client.address || "N/A"}
+                  {client.morada || "N/A"}
                 </p>
               </div>
               <div>
                 <label className="text-sm fw-medium text-muted-foreground" style={{ display: "block", marginBottom: "0.25rem" }}>
                   Sector
                 </label>
-                <p className="text-foreground" style={{ marginTop: "0.25rem", marginBottom: 0 }}>{client.sector || "N/A"}</p>
+                <p className="text-foreground" style={{ marginTop: "0.25rem", marginBottom: 0 }}>{client.setor || "N/A"}</p>
               </div>
               <div>
                 <label className="text-sm fw-medium text-muted-foreground" style={{ display: "block", marginBottom: "0.25rem" }}>
@@ -181,7 +191,7 @@ export function GestorClienteDetalhes() {
                   Nível de Risco
                 </p>
                 <p className="text-2xl fw-bold text-red-600" style={{ margin: 0 }}>
-                  {client.riskLevel || "Médio"}
+                  {client.estado_conformidade || "Médio"}
                 </p>
               </div>
               <div className="border rounded-lg" style={{ backgroundColor: "#fff7ed", borderColor: "#fed7aa", padding: "1rem" }}>

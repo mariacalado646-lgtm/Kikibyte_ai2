@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { MessageSquare, Send, User, Bell } from "lucide-react";
 import { toast } from "sonner";
 import { SendNotification } from "../../components/gestor/SendNotification";
+import { clienteService, notificacaoService } from "../../services/gestorService";
 
 export function GestorMensagens() {
   const [viewMode, setViewMode] = useState("messages");
@@ -14,6 +15,7 @@ export function GestorMensagens() {
 
   useEffect(() => {
     loadClients();
+    loadNotifications();
     const handleResize = () => setIsLg(window.innerWidth >= 1024);
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
@@ -21,36 +23,39 @@ export function GestorMensagens() {
 
   useEffect(() => {
     if (selectedClient) {
-      loadMessages(selectedClient.id);
-      loadNotifications(selectedClient.id);
+      loadMessages(selectedClient.id_cliente);
     }
   }, [selectedClient]);
 
-  const loadClients = () => {
-    const storedClients = JSON.parse(localStorage.getItem("clients") || "[]");
-    const activeClients = storedClients.filter((c) => !c.isDeleted);
-    setClients(activeClients);
-    if (activeClients.length > 0 && !selectedClient) {
-      setSelectedClient(activeClients[0]);
+  const loadClients = async () => {
+    try {
+      const data = await clienteService.listar({ ativo: true });
+      setClients(data);
+      if (data.length > 0 && !selectedClient) {
+        setSelectedClient(data[0]);
+      }
+    } catch (err) {
+      console.error("Erro ao carregar clientes:", err);
+    }
+  };
+
+  const loadNotifications = async () => {
+    try {
+      const data = await notificacaoService.listar();
+      setNotifications(data);
+    } catch (err) {
+      console.error("Erro ao carregar notificações:", err);
     }
   };
 
   const loadMessages = (clientId) => {
+    // Messages are per pedido in the backend; for now keep localStorage
+    // This will be improved when direct messaging API is added
     const allMessages = JSON.parse(
       localStorage.getItem("client_messages") || "[]",
     );
     const clientMessages = allMessages.filter((m) => m.clientId === clientId);
     setMessages(clientMessages);
-  };
-
-  const loadNotifications = (clientId) => {
-    const allNotifications = JSON.parse(
-      localStorage.getItem("client_notifications") || "[]",
-    );
-    const clientNotifications = allNotifications.filter(
-      (n) => n.clientId === clientId,
-    );
-    setNotifications(clientNotifications);
   };
 
   const handleSendMessage = () => {
@@ -61,7 +66,7 @@ export function GestorMensagens() {
     );
     const message = {
       id: Date.now(),
-      clientId: selectedClient.id,
+      clientId: selectedClient.id_cliente,
       sender: "gestor",
       content: newMessage,
       timestamp: new Date().toISOString(),
@@ -150,12 +155,12 @@ export function GestorMensagens() {
           <div className="overflow-y-auto" style={{ maxHeight: "600px" }}>
             {clients.map((client) => (
               <button
-                key={client.id}
+                key={client.id_cliente}
                 onClick={() => setSelectedClient(client)}
                 className="w-100 text-start hover-bg-muted transition-colors border-bottom border-border"
                 style={{
                   padding: "1rem",
-                  backgroundColor: selectedClient?.id === client.id ? "rgba(120, 53, 15, 0.1)" : "transparent",
+                  backgroundColor: selectedClient?.id_cliente === client.id_cliente ? "rgba(120, 53, 15, 0.1)" : "transparent",
                 }}
               >
                 <div className="d-flex align-items-center" style={{ gap: "0.75rem" }}>
@@ -164,7 +169,7 @@ export function GestorMensagens() {
                   </div>
                   <div className="flex-grow-1 min-w-0">
                     <p className="fw-semibold text-foreground text-truncate" style={{ margin: 0 }}>
-                      {client.name}
+                      {client.nome}
                     </p>
                     <p className="text-sm text-muted-foreground text-truncate" style={{ margin: 0 }}>
                       {client.email}
@@ -194,7 +199,7 @@ export function GestorMensagens() {
                 <div className="d-flex align-items-start justify-content-between">
                   <div>
                     <h2 className="fw-semibold text-foreground" style={{ margin: 0 }}>
-                      {selectedClient.name}
+                      {selectedClient.nome}
                     </h2>
                     <p className="text-sm text-muted-foreground" style={{ margin: 0 }}>
                       {selectedClient.email}
@@ -203,8 +208,8 @@ export function GestorMensagens() {
                   {viewMode === "notifications" && (
                     <div style={{ width: "12rem" }}>
                       <SendNotification
-                        clientId={selectedClient.id}
-                        clientName={selectedClient.name}
+                        clientId={selectedClient.id_cliente}
+                        clientName={selectedClient.nome}
                       />
                     </div>
                   )}
@@ -250,26 +255,26 @@ export function GestorMensagens() {
                     {notifications
                       .sort(
                         (a, b) =>
-                          new Date(b.createdAt).getTime() -
-                          new Date(a.createdAt).getTime(),
+                          new Date(b.created_at).getTime() -
+                          new Date(a.created_at).getTime(),
                       )
                       .map((notification) => (
                         <div
-                          key={notification.id}
+                          key={notification.id_notificacao}
                           className="border border-border tr-hover transition-colors"
                           style={{ borderRadius: "0.5rem", padding: "1rem" }}
                         >
                           <div className="d-flex align-items-start" style={{ gap: "0.75rem" }}>
                             <div
                               className="rounded-lg flex-shrink-0"
-                              style={{ ...getNotificationTypeStyle(notification.type), padding: "0.5rem", marginTop: "0.25rem" }}
+                              style={{ ...getNotificationTypeStyle(notification.tipo || "info"), padding: "0.5rem", marginTop: "0.25rem" }}
                             >
                               <Bell size={16} />
                             </div>
                             <div className="flex-grow-1">
                               <div className="d-flex align-items-start justify-content-between" style={{ marginBottom: "0.25rem" }}>
                                 <h4 className="text-sm fw-semibold text-foreground" style={{ margin: 0 }}>
-                                  {notification.title}
+                                  {notification.titulo}
                                 </h4>
                                 <span
                                   className="text-xs rounded-pill"
@@ -278,19 +283,19 @@ export function GestorMensagens() {
                                     paddingRight: "0.5rem",
                                     paddingTop: "0.25rem",
                                     paddingBottom: "0.25rem",
-                                    backgroundColor: notification.read ? "#f3f4f6" : "rgba(120, 53, 15, 0.1)",
-                                    color: notification.read ? "#4b5563" : "var(--primary)",
+                                    backgroundColor: notification.lida ? "#f3f4f6" : "rgba(120, 53, 15, 0.1)",
+                                    color: notification.lida ? "#4b5563" : "var(--primary)",
                                   }}
                                 >
-                                  {notification.read ? "Lida" : "Não lida"}
+                                  {notification.lida ? "Lida" : "Não lida"}
                                 </span>
                               </div>
                               <p className="text-sm text-muted-foreground" style={{ marginBottom: "0.5rem" }}>
-                                {notification.message}
+                                {notification.mensagem}
                               </p>
                               <p className="text-xs text-muted-foreground" style={{ margin: 0 }}>
                                 {new Date(
-                                  notification.createdAt,
+                                  notification.created_at,
                                 ).toLocaleString("pt-PT")}
                               </p>
                             </div>

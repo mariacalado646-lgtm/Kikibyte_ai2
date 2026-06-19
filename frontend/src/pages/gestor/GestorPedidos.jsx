@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { Clock, CheckCircle, XCircle, User } from "lucide-react";
 import { toast } from "sonner";
+import { clienteService } from "../../services/gestorService";
 
 export function GestorPedidos() {
   const [requests, setRequests] = useState([]);
@@ -13,53 +14,42 @@ export function GestorPedidos() {
   }, []);
 
   const loadRequests = () => {
+    // TODO: Replace with backend API when available for access requests
     const storedRequests = JSON.parse(
       localStorage.getItem("pending_client_requests") || "[]",
     );
     setRequests(storedRequests);
   };
 
-  const handleApprove = (requestId) => {
+  const handleApprove = async (requestId) => {
     const storedRequests = JSON.parse(
       localStorage.getItem("pending_client_requests") || "[]",
     );
     const request = storedRequests.find((r) => r.id === requestId);
     if (request) {
-      // Update request status
-      const updatedRequests = storedRequests.map((r) =>
-        r.id === requestId
-          ? {
-              ...r,
-              status: "approved",
-              approvedDate: new Date().toISOString().split("T")[0],
-            }
-          : r,
-      );
-      localStorage.setItem(
-        "pending_client_requests",
-        JSON.stringify(updatedRequests),
-      );
+      try {
+        // Create client in database
+        await clienteService.criar({
+          nome: request.name,
+          email: request.email,
+          telefone: request.phone,
+          nif: request.nif,
+        });
 
-      // Create new client
-      const clients = JSON.parse(localStorage.getItem("clients") || "[]");
-      const newClient = {
-        id: Date.now(),
-        name: request.name,
-        email: request.email,
-        phone: request.phone,
-        nif: request.nif,
-        contactPerson: request.contact,
-        password: "temp123", // Temporary password
-        isDeleted: false,
-        createdDate: new Date().toISOString().split("T")[0],
-      };
-      clients.push(newClient);
-      localStorage.setItem("clients", JSON.stringify(clients));
+        // Update request status in localStorage
+        const updatedRequests = storedRequests.map((r) =>
+          r.id === requestId
+            ? { ...r, status: "approved", approvedDate: new Date().toISOString().split("T")[0] }
+            : r,
+        );
+        localStorage.setItem("pending_client_requests", JSON.stringify(updatedRequests));
 
-      toast.success(
-        `Pedido aprovado! Cliente ${request.name} criado com sucesso.`,
-      );
-      loadRequests();
+        toast.success(`Pedido aprovado! Cliente ${request.name} criado com sucesso.`);
+        loadRequests();
+      } catch (err) {
+        console.error("Erro ao criar cliente:", err);
+        toast.error("Erro ao aprovar pedido. Tente novamente.");
+      }
     }
   };
 
@@ -69,17 +59,10 @@ export function GestorPedidos() {
     );
     const updatedRequests = storedRequests.map((r) =>
       r.id === requestId
-        ? {
-            ...r,
-            status: "rejected",
-            rejectedDate: new Date().toISOString().split("T")[0],
-          }
+        ? { ...r, status: "rejected", rejectedDate: new Date().toISOString().split("T")[0] }
         : r,
     );
-    localStorage.setItem(
-      "pending_client_requests",
-      JSON.stringify(updatedRequests),
-    );
+    localStorage.setItem("pending_client_requests", JSON.stringify(updatedRequests));
     toast.success("Pedido rejeitado");
     loadRequests();
   };

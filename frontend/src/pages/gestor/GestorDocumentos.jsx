@@ -9,6 +9,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { DocumentConversation } from "../../components/gestor/DocumentConversation";
+import { documentoService, clienteService } from "../../services/gestorService";
 
 export function GestorDocumentos() {
   const [documents, setDocuments] = useState([]);
@@ -17,48 +18,61 @@ export function GestorDocumentos() {
   const [clients, setClients] = useState([]);
   const [selectedDocument, setSelectedDocument] = useState(null);
   const [isConversationOpen, setIsConversationOpen] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     loadDocuments();
     loadClients();
   }, []);
 
-  const loadDocuments = () => {
-    const storedDocs = JSON.parse(
-      localStorage.getItem("client_documents") || "[]",
-    );
-    setDocuments(storedDocs);
+  const loadDocuments = async () => {
+    try {
+      setLoading(true);
+      const data = await documentoService.listar();
+      setDocuments(data);
+    } catch (err) {
+      console.error("Erro ao carregar documentos:", err);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const loadClients = () => {
-    const storedClients = JSON.parse(localStorage.getItem("clients") || "[]");
-    const activeClients = storedClients.filter((c) => !c.isDeleted);
-    setClients(activeClients);
+  const loadClients = async () => {
+    try {
+      const data = await clienteService.listar({ ativo: true });
+      setClients(data);
+    } catch (err) {
+      console.error("Erro ao carregar clientes:", err);
+    }
   };
 
   const handleUpload = () => {
     toast.info("Funcionalidade de upload será implementada");
   };
 
-  const handleDelete = (docId) => {
-    const updatedDocs = documents.filter((doc) => doc.id !== docId);
-    localStorage.setItem("client_documents", JSON.stringify(updatedDocs));
-    setDocuments(updatedDocs);
-    toast.success("Documento removido com sucesso");
+  const handleDelete = async (docId) => {
+    try {
+      await documentoService.remover(docId);
+      setDocuments((prev) => prev.filter((doc) => doc.id_documento !== docId));
+      toast.success("Documento removido com sucesso");
+    } catch (err) {
+      console.error("Erro ao remover documento:", err);
+      toast.error("Erro ao remover documento");
+    }
   };
 
   const filteredDocuments = documents.filter((doc) => {
     const matchesSearch =
-      doc.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      doc.type.toLowerCase().includes(searchTerm.toLowerCase());
+      (doc.titulo || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (doc.tipo_documento || "").toLowerCase().includes(searchTerm.toLowerCase());
     const matchesClient =
-      filterClient === "all" || doc.clientId === parseInt(filterClient);
+      filterClient === "all" || doc.cliente_id === parseInt(filterClient);
     return matchesSearch && matchesClient;
   });
 
   const getClientName = (clientId) => {
-    const client = clients.find((c) => c.id === clientId);
-    return client ? client.name : "Cliente Desconhecido";
+    const client = clients.find((c) => c.id_cliente === clientId);
+    return client ? client.nome : "Cliente Desconhecido";
   };
 
   const openConversation = (doc) => {
@@ -108,8 +122,8 @@ export function GestorDocumentos() {
           >
             <option value="all">Todos os Clientes</option>
             {clients.map((client) => (
-              <option key={client.id} value={client.id}>
-                {client.name}
+              <option key={client.id_cliente} value={client.id_cliente}>
+                {client.nome}
               </option>
             ))}
           </select>
@@ -129,7 +143,7 @@ export function GestorDocumentos() {
       <div className="d-grid" style={{ gap: "1rem" }}>
         {filteredDocuments.map((doc) => (
           <div
-            key={doc.id}
+            key={doc.id_documento}
             className="bg-white border border-border hover-shadow-md transition-all"
             style={{ borderRadius: "0.75rem", padding: "1.5rem" }}
           >
@@ -140,13 +154,13 @@ export function GestorDocumentos() {
                 </div>
                 <div className="flex-grow-1">
                   <h3 className="text-lg fw-semibold text-foreground" style={{ marginBottom: "0.25rem", marginTop: 0 }}>
-                    {doc.name}
+                    {doc.titulo}
                   </h3>
                   <div className="space-y-1 text-sm text-muted-foreground">
-                    <p style={{ margin: 0 }}>📁 Tipo: {doc.type}</p>
-                    <p style={{ margin: 0 }}>👤 Cliente: {getClientName(doc.clientId)}</p>
-                    <p style={{ margin: 0 }}>📅 Data: {doc.uploadDate || "N/A"}</p>
-                    {doc.size && <p style={{ margin: 0 }}>📊 Tamanho: {doc.size}</p>}
+                    <p style={{ margin: 0 }}>📁 Tipo: {doc.tipo_documento}</p>
+                    <p style={{ margin: 0 }}>👤 Cliente: {getClientName(doc.cliente_id)}</p>
+                    <p style={{ margin: 0 }}>📅 Data: {doc.created_at ? new Date(doc.created_at).toLocaleDateString("pt-PT") : "N/A"}</p>
+                    {doc.tamanho_bytes && <p style={{ margin: 0 }}>📊 Tamanho: {Math.round(doc.tamanho_bytes / 1024)} KB</p>}
                   </div>
                 </div>
               </div>
@@ -159,7 +173,7 @@ export function GestorDocumentos() {
                   title="Conversa"
                 >
                   <MessageSquare size={18} />
-                  {getMessageCount(doc.id) > 0 && (
+                  {getMessageCount(doc.id_documento) > 0 && (
                     <span
                       className="position-absolute text-white text-xs rounded-circle d-flex align-items-center justify-content-center fw-bold"
                       style={{
@@ -170,7 +184,7 @@ export function GestorDocumentos() {
                         backgroundColor: "#2563eb",
                       }}
                     >
-                      {getMessageCount(doc.id)}
+                      {getMessageCount(doc.id_documento)}
                     </span>
                   )}
                 </button>
@@ -182,7 +196,7 @@ export function GestorDocumentos() {
                   <Download size={18} />
                 </button>
                 <button
-                  onClick={() => handleDelete(doc.id)}
+                  onClick={() => handleDelete(doc.id_documento)}
                   className="hover-bg-red-50 rounded-3 transition-colors border-0 bg-transparent"
                   style={{ padding: "0.5rem", color: "#dc2626" }}
                   title="Eliminar"

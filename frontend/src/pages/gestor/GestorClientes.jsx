@@ -1,26 +1,34 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router";
 import { Search, Eye, User } from "lucide-react";
+import { clienteService } from "../../services/gestorService";
 
 export function GestorClientes() {
   const navigate = useNavigate();
   const [clients, setClients] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     loadClients();
   }, []);
 
-  const loadClients = () => {
-    const storedClients = JSON.parse(localStorage.getItem("clients") || "[]");
-    const activeClients = storedClients.filter((c) => !c.isDeleted);
-    setClients(activeClients);
+  const loadClients = async () => {
+    try {
+      setLoading(true);
+      const data = await clienteService.listar({ ativo: true });
+      setClients(data);
+    } catch (err) {
+      console.error("Erro ao carregar clientes:", err);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const filteredClients = clients.filter(
     (client) =>
-      client.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      client.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (client.nome || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (client.email || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
       (client.nif && client.nif.includes(searchTerm)),
   );
 
@@ -55,7 +63,7 @@ export function GestorClientes() {
       <div className="d-grid" style={{ gap: "1.5rem" }}>
         {filteredClients.map((client) => (
           <div
-            key={client.id}
+            key={client.id_cliente}
             className="bg-white border border-border hover-shadow-md transition-all"
             style={{ borderRadius: "0.75rem", padding: "1.5rem" }}
           >
@@ -66,20 +74,20 @@ export function GestorClientes() {
                 </div>
                 <div>
                   <h3 className="text-lg fw-semibold text-foreground" style={{ marginBottom: "0.25rem", marginTop: 0 }}>
-                    {client.name}
+                    {client.nome}
                   </h3>
                   <div className="space-y-1 text-sm text-muted-foreground">
                     <p style={{ margin: 0 }}>📧 {client.email}</p>
-                    <p style={{ margin: 0 }}>📱 {client.phone}</p>
+                    <p style={{ margin: 0 }}>📱 {client.telefone}</p>
                     {client.nif && <p style={{ margin: 0 }}>🏢 NIF: {client.nif}</p>}
-                    {client.sector && <p style={{ margin: 0 }}>🏭 Sector: {client.sector}</p>}
+                    {client.setor && <p style={{ margin: 0 }}>🏭 Sector: {client.setor}</p>}
                   </div>
                 </div>
               </div>
 
               <div className="d-flex" style={{ gap: "0.5rem" }}>
                 <button
-                  onClick={() => navigate(`/gestor/clientes/${client.id}`)}
+                  onClick={() => navigate(`/gestor/clientes/${client.id_cliente}`)}
                   className="bg-primary text-primary-foreground hover-bg-accent transition-colors d-flex align-items-center border-0"
                   style={{ paddingLeft: "1rem", paddingRight: "1rem", paddingTop: "0.5rem", paddingBottom: "0.5rem", borderRadius: "0.5rem", gap: "0.5rem" }}
                 >
@@ -96,7 +104,7 @@ export function GestorClientes() {
                   Nível de Risco
                 </p>
                 <p className="fw-semibold text-foreground" style={{ margin: 0 }}>
-                  {client.riskLevel || "N/A"}
+                  {client.estado_conformidade || "N/A"}
                 </p>
               </div>
               <div className="text-center">
@@ -104,7 +112,7 @@ export function GestorClientes() {
                   Último Acesso
                 </p>
                 <p className="fw-semibold text-foreground" style={{ margin: 0 }}>
-                  {client.lastAccess || "N/A"}
+                  {client.created_at ? new Date(client.created_at).toLocaleDateString("pt-PT") : "N/A"}
                 </p>
               </div>
               <div className="text-center">
@@ -114,14 +122,20 @@ export function GestorClientes() {
               <div className="text-center">
                 <p className="text-xs text-muted-foreground" style={{ marginBottom: "0.25rem" }}>Estado</p>
                 <span className="d-inline-block text-xs fw-semibold bg-green-100 text-green-700" style={{ paddingLeft: "0.5rem", paddingRight: "0.5rem", paddingTop: "0.25rem", paddingBottom: "0.25rem", borderRadius: "0.25rem" }}>
-                  Ativo
+                  {client.ativo ? "Ativo" : "Inativo"}
                 </span>
               </div>
             </div>
           </div>
         ))}
 
-        {filteredClients.length === 0 && (
+        {loading && (
+          <div className="bg-white border border-border text-center" style={{ borderRadius: "0.75rem", padding: "3rem" }}>
+            <p className="text-muted-foreground" style={{ margin: 0 }}>A carregar clientes...</p>
+          </div>
+        )}
+
+        {!loading && filteredClients.length === 0 && (
           <div className="bg-white border border-border text-center" style={{ borderRadius: "0.75rem", padding: "3rem" }}>
             <User className="text-muted-foreground mx-auto mb-4" style={{ width: "3rem", height: "3rem" }} />
             <h3 className="text-lg fw-semibold text-foreground" style={{ marginBottom: "0.5rem" }}>

@@ -10,12 +10,24 @@ export function Navbar() {
   const location = useLocation()
   const { user, isAuthenticated, logout } = useAuth()
 
+  const roleId = Number(user?.role_id)
   const userType =
-    user?.role_id === 1 ? 'admin' :
-    user?.role_id === 2 ? 'gestor' :
-    user?.role_id === 3 ? 'client' : null
+    roleId === 1 ? 'admin' :
+    roleId === 2 ? 'gestor' :
+    roleId === 3 ? 'client' : null
 
-  const username = user?.email || user?.nome || ''
+  // fallback: try to read role_id from localStorage 'user' if context has none
+  const localUser = (() => { try { return JSON.parse(localStorage.getItem('user')) } catch { return null } })()
+  const localRoleId = Number(localUser?.role_id)
+  const effectiveType = userType || (localRoleId === 1 ? 'admin' : localRoleId === 2 ? 'gestor' : null)
+
+  const username = user?.email || user?.nome || localUser?.nome || localUser?.email || ''
+
+  const handleUserClick = () => {
+    if (effectiveType === 'admin') navigate('/admin')
+    else if (effectiveType === 'gestor') navigate('/gestor')
+    else navigate('/')
+  }
 
   const handleLogout = () => {
     logout()
@@ -64,9 +76,9 @@ export function Navbar() {
       {userType === 'gestor' && (
         <button className="kb-nav-link" onClick={() => navigate('/gestor')}>Painel Gestor</button>
       )}
-      <div className="d-flex align-items-center gap-2 text-muted">
+      <button className="d-flex align-items-center gap-2 kb-nav-link" onClick={handleUserClick}>
       <User size={18} /><span style={{ fontSize: '0.875rem' }}>{username}</span>
-      </div>
+      </button>
       <button className="btn-kb-outline-sm" onClick={handleLogout}>
       <LogOut size={16} /> Sair
       </button>
@@ -99,9 +111,9 @@ export function Navbar() {
           Administração
           </button>
         )}
-        <div className="d-flex align-items-center gap-2 mb-3 text-muted">
+        <button className="d-flex align-items-center gap-2 mb-3 kb-nav-link d-block w-100 text-start" onClick={() => { handleUserClick(); setIsMenuOpen(false) }}>
         <User size={18} /><span style={{ fontSize: '0.875rem' }}>{username}</span>
-        </div>
+        </button>
         <button className="btn-kb-outline w-100" onClick={handleLogout}>
         <LogOut size={16} /> Sair
         </button>

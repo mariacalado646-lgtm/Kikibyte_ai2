@@ -6,7 +6,9 @@ export default function App() {
   return (
     <AuthProvider>
       <Navbar />
-      <AppRoutes />
+      <main className="kb-main-content">
+        <AppRoutes />
+      </main>
     </AuthProvider>
   )
 }

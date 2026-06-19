@@ -1,5 +1,6 @@
 import { Users, FileText, Clock, CheckCircle } from "lucide-react";
 import { useEffect, useState } from "react";
+import { clienteService, documentoService, pedidoService } from "../../services/gestorService";
 
 export function GestorDashboard() {
   const [stats, setStats] = useState({
@@ -8,26 +9,38 @@ export function GestorDashboard() {
     totalDocuments: 0,
     pendingRequests: 0,
   });
+  const [recentClients, setRecentClients] = useState([]);
+  const [pendingRequestsList, setPendingRequestsList] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Load data from localStorage
-    const clients = JSON.parse(localStorage.getItem("clients") || "[]");
-    const activeClients = clients.filter((c) => !c.isDeleted);
-    const documents = JSON.parse(
-      localStorage.getItem("client_documents") || "[]",
-    );
-    const pendingRequests = JSON.parse(
-      localStorage.getItem("pending_client_requests") || "[]",
-    );
-    const pending = pendingRequests.filter((r) => r.status === "pending");
-
-    setStats({
-      totalClients: clients.length,
-      activeClients: activeClients.length,
-      totalDocuments: documents.length,
-      pendingRequests: pending.length,
-    });
+    loadDashboardData();
   }, []);
+
+  const loadDashboardData = async () => {
+    try {
+      setLoading(true);
+      const [clientes, docs, pedidos] = await Promise.all([
+        clienteService.listar({ ativo: true }),
+        documentoService.listar(),
+        pedidoService.listar({ estado: "pendente" }),
+      ]);
+
+      setStats({
+        totalClients: clientes.length,
+        activeClients: clientes.filter((c) => c.ativo).length,
+        totalDocuments: docs.length,
+        pendingRequests: pedidos.length,
+      });
+
+      setRecentClients(clientes.slice(0, 5));
+      setPendingRequestsList(pedidos.slice(0, 5));
+    } catch (err) {
+      console.error("Erro ao carregar dados do dashboard:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const statCards = [
     {
@@ -98,29 +111,26 @@ export function GestorDashboard() {
             Clientes Recentes
           </h2>
           <div className="space-y-3">
-            {JSON.parse(localStorage.getItem("clients") || "[]")
-              .filter((c) => !c.isDeleted)
-              .slice(0, 5)
-              .map((client) => (
-                <div
-                  key={client.id}
-                  className="d-flex align-items-center justify-content-between hover-bg-muted transition-colors"
-                  style={{ padding: "0.75rem", borderRadius: "0.5rem" }}
-                >
-                  <div>
-                    <p className="fw-medium text-foreground" style={{ margin: 0 }}>
-                      {client.name}
-                    </p>
-                    <p className="text-sm text-muted-foreground" style={{ margin: 0 }}>
-                      {client.email}
-                    </p>
-                  </div>
-                  <div className="text-xs text-muted-foreground">
-                    {client.sector || "N/A"}
-                  </div>
+            {recentClients.map((client) => (
+              <div
+                key={client.id_cliente}
+                className="d-flex align-items-center justify-content-between hover-bg-muted transition-colors"
+                style={{ padding: "0.75rem", borderRadius: "0.5rem" }}
+              >
+                <div>
+                  <p className="fw-medium text-foreground" style={{ margin: 0 }}>
+                    {client.nome}
+                  </p>
+                  <p className="text-sm text-muted-foreground" style={{ margin: 0 }}>
+                    {client.email}
+                  </p>
                 </div>
-              ))}
-            {stats.activeClients === 0 && (
+                <div className="text-xs text-muted-foreground">
+                  {client.setor || "N/A"}
+                </div>
+              </div>
+            ))}
+            {recentClients.length === 0 && !loading && (
               <p className="text-sm text-muted-foreground text-center" style={{ paddingTop: "1rem", paddingBottom: "1rem", margin: 0 }}>
                 Nenhum cliente registado
               </p>
@@ -134,29 +144,26 @@ export function GestorDashboard() {
             Pedidos Pendentes
           </h2>
           <div className="space-y-3">
-            {JSON.parse(localStorage.getItem("pending_client_requests") || "[]")
-              .filter((r) => r.status === "pending")
-              .slice(0, 5)
-              .map((request) => (
-                <div
-                  key={request.id}
-                  className="d-flex align-items-center justify-content-between hover-bg-muted transition-colors"
-                  style={{ padding: "0.75rem", borderRadius: "0.5rem" }}
-                >
-                  <div>
-                    <p className="fw-medium text-foreground" style={{ margin: 0 }}>
-                      {request.name}
-                    </p>
-                    <p className="text-sm text-muted-foreground" style={{ margin: 0 }}>
-                      {request.email}
-                    </p>
-                  </div>
-                  <div className="text-xs text-muted-foreground">
-                    {request.requestDate}
-                  </div>
+            {pendingRequestsList.map((request) => (
+              <div
+                key={request.id_pedido}
+                className="d-flex align-items-center justify-content-between hover-bg-muted transition-colors"
+                style={{ padding: "0.75rem", borderRadius: "0.5rem" }}
+              >
+                <div>
+                  <p className="fw-medium text-foreground" style={{ margin: 0 }}>
+                    {request.titulo}
+                  </p>
+                  <p className="text-sm text-muted-foreground" style={{ margin: 0 }}>
+                    {request.cliente?.nome || "N/A"}
+                  </p>
                 </div>
-              ))}
-            {stats.pendingRequests === 0 && (
+                <div className="text-xs text-muted-foreground">
+                  {request.data_criacao ? new Date(request.data_criacao).toLocaleDateString("pt-PT") : ""}
+                </div>
+              </div>
+            ))}
+            {pendingRequestsList.length === 0 && !loading && (
               <p className="text-sm text-muted-foreground text-center" style={{ paddingTop: "1rem", paddingBottom: "1rem", margin: 0 }}>
                 Nenhum pedido pendente
               </p>
