@@ -16,32 +16,6 @@ export const login = async (req, res) => {
 
         if (!user) return res.status(401).json({ error: 'Credenciais inválidas' })
 
-                await user.update({ ultimo_login: new Date() })
-
-                const token = jwt.sign(
-                    {
-                        id:         user.id_utilizador,
-                        email:      user.email,
-                        role_id:    user.role_id,
-                        empresa_id: user.empresa_id,
-                        cliente_id: user.cliente_id
-                    },
-                    process.env.JWT_SECRET,
-                    { expiresIn: '7d' }
-                )
-
-                res.json({
-                    token,
-                    user: {
-                        id:         user.id_utilizador,
-                        nome:       user.nome,
-                        email:      user.email,
-                        role_id:    user.role_id,
-                        empresa_id: user.empresa_id,
-                        cliente_id: user.cliente_id,
-                        foto:       user.foto_perfil_base64
-                    }
-                })
         const passwordValid = await bcrypt.compare(password, user.password_hash)
         if (!passwordValid) return res.status(401).json({ error: 'Credenciais inválidas' })
 
