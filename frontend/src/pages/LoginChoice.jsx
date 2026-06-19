@@ -20,20 +20,20 @@ export function LoginChoice() {
         </div>
 
         {/* Choice Cards */}
-        <div className="d-grid md-grid-cols-2" style={{ gap: '1.5rem' }}>
+        <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
           {/* Conta Existente */}
           <button
             onClick={() => navigate("/login/existing")}
             className="choice-card-group text-center"
-            style={{ borderRadius: '1rem', padding: '2rem' }}
+            style={{ borderRadius: '0.75rem', padding: '1.25rem', flex: '1 1 0', minWidth: '0' }}
           >
-            <div className="d-inline-flex align-items-center justify-content-center rounded-pill choice-card-icon-wrapper-primary transition-all" style={{ width: '5rem', height: '5rem', backgroundColor: 'rgba(120, 53, 15, 0.1)', color: 'var(--primary)', marginBottom: '1.5rem' }}>
-              <LogIn size={40} />
+            <div className="d-inline-flex align-items-center justify-content-center rounded-pill choice-card-icon-wrapper-primary transition-all" style={{ width: '3.25rem', height: '3.25rem', backgroundColor: 'rgba(120, 53, 15, 0.1)', color: 'var(--primary)', marginBottom: '0.85rem' }}>
+              <LogIn size={26} />
             </div>
-            <h2 className="text-2xl fw-bold text-foreground" style={{ marginBottom: '0.75rem' }}>
+            <h2 className="text-lg fw-bold text-foreground" style={{ marginBottom: '0.4rem' }}>
               Conta Existente
             </h2>
-            <p className="text-muted-foreground">
+            <p className="text-muted-foreground" style={{ fontSize: '0.85rem' }}>
               Já tem credenciais de acesso? Faça login para aceder à sua área.
             </p>
           </button>
@@ -42,15 +42,15 @@ export function LoginChoice() {
           <button
             onClick={() => navigate("/login/new")}
             className="choice-card-group text-center"
-            style={{ borderRadius: '1rem', padding: '2rem' }}
+            style={{ borderRadius: '0.75rem', padding: '1.25rem', flex: '1 1 0', minWidth: '0' }}
           >
-            <div className="d-inline-flex align-items-center justify-content-center rounded-pill choice-card-icon-wrapper-accent transition-all" style={{ width: '5rem', height: '5rem', backgroundColor: 'rgba(166, 124, 82, 0.1)', color: 'var(--accent)', marginBottom: '1.5rem' }}>
-              <UserPlus size={40} />
+            <div className="d-inline-flex align-items-center justify-content-center rounded-pill choice-card-icon-wrapper-accent transition-all" style={{ width: '3.25rem', height: '3.25rem', backgroundColor: 'rgba(166, 124, 82, 0.1)', color: 'var(--accent)', marginBottom: '0.85rem' }}>
+              <UserPlus size={26} />
             </div>
-            <h2 className="text-2xl fw-bold text-foreground" style={{ marginBottom: '0.75rem' }}>
+            <h2 className="text-lg fw-bold text-foreground" style={{ marginBottom: '0.4rem' }}>
               Conta Nova
             </h2>
-            <p className="text-muted-foreground">
+            <p className="text-muted-foreground" style={{ fontSize: '0.85rem' }}>
               Ainda não tem acesso? Solicite as suas credenciais aqui.
             </p>
           </button>

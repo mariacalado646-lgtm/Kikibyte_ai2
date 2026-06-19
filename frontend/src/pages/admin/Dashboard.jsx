@@ -100,7 +100,7 @@ export function Dashboard() {
   };
 
   return (
-    <div style={{ padding: '2rem' }}>
+    <div style={{ padding: '4rem' }}>
       <div style={{ marginBottom: '2rem' }}>
         <h1 className="text-3xl fw-bold text-foreground" style={{ marginBottom: '0.5rem' }}>Dashboard</h1>
         <p className="text-muted-foreground">
