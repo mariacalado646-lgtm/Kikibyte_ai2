@@ -1,17 +1,15 @@
 import bcrypt from 'bcryptjs'
 import jwt from 'jsonwebtoken'
 import { Utilizador } from '../models/Utilizador.js'
-import { Op } from 'sequelize'
 
 export const login = async (req, res) => {
     try {
-        const { email, password } = req.body  // frontend still sends 'email' field
+        const { email, password } = req.body
 
         if (!email || !password) {
-            return res.status(400).json({ error: 'Email/utilizador e password são obrigatórios' })
+            return res.status(400).json({ error: 'Email e password são obrigatórios' })
         }
 
-        // search by email OR by nome (treating nome as username)
         const user = await Utilizador.findOne({
             where: { email, ativo: true }
         })
@@ -44,9 +42,38 @@ export const login = async (req, res) => {
                         foto:       user.foto_perfil_base64
                     }
                 })
+        const passwordValid = await bcrypt.compare(password, user.password_hash)
+        if (!passwordValid) return res.status(401).json({ error: 'Credenciais inválidas' })
+
+        await user.update({ ultimo_login: new Date() })
+
+        const token = jwt.sign(
+            {
+                id:         user.id_utilizador,
+                email:      user.email,
+                role_id:    user.role_id,
+                empresa_id: user.empresa_id,
+                cliente_id: user.cliente_id
+            },
+            process.env.JWT_SECRET,
+            { expiresIn: '7d' }
+        )
+
+        res.json({
+            token,
+            user: {
+                id:         user.id_utilizador,
+                nome:       user.nome,
+                email:      user.email,
+                role_id:    user.role_id,
+                empresa_id: user.empresa_id,
+                cliente_id: user.cliente_id,
+                foto:       user.foto_perfil_base64
+            }
+        })
     } catch (err) {
         console.error('Login error:', err)
-        res.status(500).json({ error: 'Server error' })
+        res.status(500).json({ error: 'Erro interno do servidor' })
     }
 }
 
