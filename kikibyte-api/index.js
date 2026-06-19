@@ -46,10 +46,9 @@ app.use('/api/empresas',   empresaRoutes)
 app.use('/api/relatorios', relatorioRoutes)
 
 sequelize.authenticate()
-.then(() => {
-    console.log('Database connected')
-    app.listen(process.env.PORT || 3000, () =>
-    console.log(`Server running on port ${process.env.PORT || 3000}`)
-    )
-})
+.then(() => console.log('Database connected'))
 .catch(err => console.error('Database connection failed:', err))
+
+app.listen(process.env.PORT || 3000, () =>
+  console.log(`Server running on port ${process.env.PORT || 3000}`)
+)
