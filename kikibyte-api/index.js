@@ -4,6 +4,7 @@ import dotenv from 'dotenv'
 import { sequelize } from './config/database.js'
 import contactRoutes from './routes/contactRoutes.js'
 import artigoRoutes from './routes/artigoRoutes.js'
+import authRoutes from './routes/authRoutes.js'
 
 dotenv.config()
 
@@ -14,6 +15,7 @@ app.use(express.json({ limit: '20mb' }))  // base64 files can be large
 
 app.use('/api/contact', contactRoutes)
 app.use('/api/artigos', artigoRoutes)
+app.use('/api/auth', authRoutes)
 
 sequelize.authenticate()
 .then(() => {

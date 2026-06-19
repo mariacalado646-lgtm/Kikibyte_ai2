@@ -1,12 +1,23 @@
-import axios from 'axios';
+import axios from 'axios'
 
-const api = axios.create({
-    baseURL: 'http://127.0.0.1:8000/api', // Points to your Django backend API
-    timeout: 5000,                          // Timeout after 5 seconds
-    headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
+export const api = axios.create({ baseURL: 'http://localhost:3000/api' })
+
+// attach token to every request
+api.interceptors.request.use(config => {
+    const token = localStorage.getItem('token')
+    if (token) config.headers.Authorization = `Bearer ${token}`
+        return config
+})
+
+// auto-logout on 401 responses (token expired or invalid)
+api.interceptors.response.use(
+    res => res,
+    err => {
+        if (err.response?.status === 401) {
+            localStorage.removeItem('token')
+            localStorage.removeItem('user')
+            window.location.href = '/login'
+        }
+        return Promise.reject(err)
     }
-});
-
-export default api;
+)

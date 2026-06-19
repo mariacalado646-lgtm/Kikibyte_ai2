@@ -1,7 +1,4 @@
-import axios from 'axios'
-
-const api = axios.create({
-    baseURL: 'http://localhost:3000/api'
-})
+import { api } from './api'
 
 export const submitContactForm = (data) => api.post('/contact', data)
+export const fetchSubmissions  = ()     => api.get('/contact').then(r => r.data)

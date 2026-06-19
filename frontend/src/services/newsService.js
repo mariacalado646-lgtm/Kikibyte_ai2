@@ -1,14 +1,5 @@
-import axios from 'axios'
+import { api } from './api'
 
-const api = axios.create({
-    baseURL: 'http://localhost:3000/api'
-})
-
-export const fetchArtigosPublicados = () =>
-api.get('/artigos').then(res => res.data)
-
-export const fetchArtigoPorSlug = (slug) =>
-api.get(`/artigos/${slug}`).then(res => res.data)
-
-export const fetchCategorias = () =>
-api.get('/artigos/categorias').then(res => res.data)
+export const fetchArtigosPublicados = ()     => api.get('/artigos').then(r => r.data)
+export const fetchArtigoPorSlug     = (slug) => api.get(`/artigos/${slug}`).then(r => r.data)
+export const fetchCategorias        = ()     => api.get('/artigos/categorias').then(r => r.data)

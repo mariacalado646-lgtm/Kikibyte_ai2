@@ -1,7 +1,7 @@
 import { DataTypes } from 'sequelize'
 import { sequelize } from '../config/database.js'
 
-export const User = sequelize.define('User', {
+export const Utilizador = sequelize.define('User', {
     id_utilizador:      { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
     empresa_id:   { type: DataTypes.INTEGER },
     cliente_id:    { type: DataTypes.INTEGER },
@@ -15,6 +15,6 @@ export const User = sequelize.define('User', {
     created_at:   { type: DataTypes.DATE,    allowNull: false },
     updated_at:   { type: DataTypes.DATE,    allowNull: false }
 }, {
-    tableName: 'users',
+    tableName: 'utilizador',
     timestamps: false
 })

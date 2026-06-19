@@ -70,7 +70,7 @@ export function Navbar() {
       </button>
       </div>
     ) : (
-      <button className="btn-kb-primary-sm">
+      <button className="btn-kb-primary-sm" onClick={() => navigate('/login')}>
       <LogIn size={16} /> Login
       </button>
     )}
