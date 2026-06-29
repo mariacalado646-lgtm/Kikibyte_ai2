@@ -4,11 +4,11 @@ import path from 'path'
 
 export default defineConfig({
   plugins: [react()],
-                            resolve: {
-                              alias: {
-                                '@': path.resolve(__dirname, './src'),
-                            'react': path.resolve('./node_modules/react'),
-                            'react-dom': path.resolve('./node_modules/react-dom'),
-                              },
-                            },
+  resolve: {
+    alias: {
+      '@': path.resolve(__dirname, './src'),
+      'react': path.resolve('./node_modules/react'),
+      'react-dom': path.resolve('./node_modules/react-dom'),
+    },
+  },
 })

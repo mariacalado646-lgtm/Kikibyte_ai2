@@ -1,5 +1,6 @@
 import express from 'express'
 import cors from 'cors'
+import bcrypt from 'bcryptjs'
 import dotenv from 'dotenv'
 import { sequelize } from './config/database.js'
 import contactRoutes from './routes/contactRoutes.js'
