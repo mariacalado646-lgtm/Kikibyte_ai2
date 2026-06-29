@@ -2,10 +2,12 @@ import { useState } from "react";
 import { useNavigate } from "react-router";
 import { User, UserPlus, ArrowLeft } from "lucide-react";
 import { toast } from "sonner";
+import { api } from "../services/api";
 import logoImg from "../assets/logo.png";
 
 export function LoginNew() {
   const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
   const [newClientData, setNewClientData] = useState({
     name: "",
     contact: "",
@@ -14,43 +16,40 @@ export function LoginNew() {
     nif: "",
   });
 
-  const handleNewClientSubmit = (e) => {
+  const handleNewClientSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
 
-    // Save new client request to localStorage (pending approval)
-    const pendingRequests = JSON.parse(
-      localStorage.getItem("pending_client_requests") || "[]",
-    );
-    const newRequest = {
-      id: Date.now(),
-      ...newClientData,
-      requestDate: new Date().toISOString().split("T")[0],
-      status: "pending",
-    };
+    try {
+      await api.post("/pedidos-acesso", {
+        nome_empresa: newClientData.name,
+        pessoa_contacto: newClientData.contact,
+        email: newClientData.email,
+        telefone: newClientData.phone,
+        nif: newClientData.nif,
+      });
 
-    pendingRequests.push(newRequest);
-    localStorage.setItem(
-      "pending_client_requests",
-      JSON.stringify(pendingRequests),
-    );
+      toast.success(
+        "Pedido enviado com sucesso! Entraremos em contacto em breve.",
+      );
 
-    toast.success(
-      "Pedido enviado com sucesso! Entraremos em contacto em breve.",
-    );
+      setNewClientData({
+        name: "",
+        contact: "",
+        email: "",
+        phone: "",
+        nif: "",
+      });
 
-    // Reset form and navigate back
-    setNewClientData({
-      name: "",
-      contact: "",
-      email: "",
-      phone: "",
-      nif: "",
-    });
-
-    // Show success message and redirect after a moment
-    setTimeout(() => {
-      navigate("/login");
-    }, 2000);
+      setTimeout(() => {
+        navigate("/login");
+      }, 2000);
+    } catch (err) {
+      console.error("Erro ao enviar pedido:", err);
+      toast.error(err.response?.data?.error || "Erro ao enviar pedido. Tente novamente.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -60,9 +59,9 @@ export function LoginNew() {
         <div className="text-center" style={{ marginBottom: '2rem' }}>
           <div className="d-inline-flex align-items-center mb-4" style={{ gap: '0.75rem' }}>
             <img src={logoImg} alt="KikiByte Logo" style={{ height: '4rem', width: '4rem' }} />
-            <span className="text-3xl text-primary fw-bold">KikiByte</span>
+            <span className="h3 text-primary fw-bold">KikiByte</span>
           </div>
-          <p className="text-muted-foreground">Pedido de Novo Acesso</p>
+          <p className="text-muted">Pedido de Novo Acesso</p>
         </div>
 
         {/* Information Banner */}
@@ -72,10 +71,10 @@ export function LoginNew() {
               <User size={20} />
             </div>
             <div>
-              <p className="text-sm fw-semibold text-foreground" style={{ marginBottom: '0.25rem' }}>
+              <p className="small fw-semibold text-body" style={{ marginBottom: '0.25rem' }}>
                 Novo Cliente
               </p>
-              <p className="text-xs text-muted-foreground">
+              <p className="small text-muted">
                 Preencha o formulário abaixo para solicitar acesso. A nossa
                 equipa irá analisar o seu pedido e entrar em contacto consigo.
               </p>
@@ -86,11 +85,11 @@ export function LoginNew() {
         {/* New Client Registration Form */}
         <form
           onSubmit={handleNewClientSubmit}
-          className="bg-white space-y-6"
+          className="bg-white kb-space-y-6"
           style={{ borderRadius: '1rem', boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)', padding: '2rem' }}
         >
           <div>
-            <label className="d-block text-sm fw-medium text-foreground" style={{ marginBottom: '0.5rem' }}>
+            <label className="d-block small fw-medium text-body" style={{ marginBottom: '0.5rem' }}>
               Nome da Empresa *
             </label>
             <input
@@ -106,7 +105,7 @@ export function LoginNew() {
           </div>
 
           <div>
-            <label className="d-block text-sm fw-medium text-foreground" style={{ marginBottom: '0.5rem' }}>
+            <label className="d-block small fw-medium text-body" style={{ marginBottom: '0.5rem' }}>
               Pessoa de Contacto *
             </label>
             <input
@@ -122,7 +121,7 @@ export function LoginNew() {
           </div>
 
           <div>
-            <label className="d-block text-sm fw-medium text-foreground" style={{ marginBottom: '0.5rem' }}>
+            <label className="d-block small fw-medium text-body" style={{ marginBottom: '0.5rem' }}>
               Email *
             </label>
             <input
@@ -138,7 +137,7 @@ export function LoginNew() {
           </div>
 
           <div>
-            <label className="d-block text-sm fw-medium text-foreground" style={{ marginBottom: '0.5rem' }}>
+            <label className="d-block small fw-medium text-body" style={{ marginBottom: '0.5rem' }}>
               Telefone *
             </label>
             <input
@@ -154,7 +153,7 @@ export function LoginNew() {
           </div>
 
           <div>
-            <label className="d-block text-sm fw-medium text-foreground" style={{ marginBottom: '0.5rem' }}>
+            <label className="d-block small fw-medium text-body" style={{ marginBottom: '0.5rem' }}>
               NIF
             </label>
             <input
@@ -170,18 +169,19 @@ export function LoginNew() {
 
           <button
             type="submit"
-            className="w-100 bg-primary text-primary-foreground hover-bg-accent transition-colors d-inline-flex align-items-center justify-content-center fw-semibold"
-            style={{ paddingLeft: '1.5rem', paddingRight: '1.5rem', paddingTop: '0.75rem', paddingBottom: '0.75rem', borderRadius: '0.5rem', gap: '0.5rem' }}
+            disabled={loading}
+            className="w-100 bg-primary text-primary-foreground hover-bg-secondary kb-transition-bg d-inline-flex align-items-center justify-content-center fw-semibold border-0"
+            style={{ paddingLeft: '1.5rem', paddingRight: '1.5rem', paddingTop: '0.75rem', paddingBottom: '0.75rem', borderRadius: '0.5rem', gap: '0.5rem', opacity: loading ? 0.6 : 1 }}
           >
             <UserPlus size={20} />
-            Enviar Pedido
+            {loading ? 'A enviar...' : 'Enviar Pedido'}
           </button>
 
           <div className="text-center">
             <button
               type="button"
               onClick={() => navigate("/login")}
-              className="text-sm text-muted-foreground hover-text-primary transition-colors d-inline-flex align-items-center border-0 bg-transparent"
+              className="small text-muted kb-hover-text-primary kb-transition-bg d-inline-flex align-items-center border-0 bg-transparent"
               style={{ gap: '0.5rem' }}
             >
               <ArrowLeft size={16} />

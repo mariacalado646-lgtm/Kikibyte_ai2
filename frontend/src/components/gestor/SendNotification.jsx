@@ -15,75 +15,60 @@ export function SendNotification({ clientId, clientName }) {
     }
 
     try {
-      // Save to backend (uses the current user from JWT as utilizador_id)
+      // Send to the client's user (backend resolves cliente_id → utilizador_id)
       await notificacaoService.criar({
+        cliente_id: clientId,
         titulo: `[${clientName}] ${title}`,
         mensagem: message,
+        tipo: type,
       });
-
-      // Also keep in localStorage for client-side notification display
-      const allNotifications = JSON.parse(
-        localStorage.getItem("client_notifications") || "[]",
-      );
-      const notification = {
-        id: Date.now(),
-        clientId,
-        type,
-        title: `[${clientName}] ${title}`,
-        message,
-        createdAt: new Date().toISOString(),
-        read: false,
-      };
-      allNotifications.push(notification);
-      localStorage.setItem(
-        "client_notifications",
-        JSON.stringify(allNotifications),
-      );
 
       toast.success(`Notificação enviada a ${clientName}`);
       setTitle("");
       setMessage("");
     } catch (err) {
       console.error("Erro ao enviar notificação:", err);
-      toast.error("Erro ao enviar notificação");
+      toast.error(err.response?.data?.error || "Erro ao enviar notificação");
     }
   };
+
+  const notifTypes = [
+    { value: "info",    label: "Informação", color: "#2563eb", bg: "#eff6ff" },
+    { value: "success", label: "Sucesso",    color: "#16a34a", bg: "#dcfce7" },
+    { value: "warning", label: "Aviso",      color: "#ca8a04", bg: "#fef9c3" },
+    { value: "alert",   label: "Alerta",     color: "#dc2626", bg: "#fee2e2" },
+  ];
 
   return (
     <div className="d-flex flex-column" style={{ gap: "0.5rem" }}>
       <select
         value={type}
         onChange={(e) => setType(e.target.value)}
-        className="border border-border focus-ring-primary"
-        style={{ padding: "0.5rem", borderRadius: "0.5rem" }}
+        style={{ padding: "0.5rem 0.75rem", borderRadius: "0.625rem", border: "1px solid #e7e5e4", fontSize: "0.8rem", backgroundColor: "#fff", color: "#1c1917", outline: "none", cursor: "pointer" }}
       >
-        <option value="info">Informação</option>
-        <option value="success">Sucesso</option>
-        <option value="warning">Aviso</option>
-        <option value="alert">Alerta</option>
+        {notifTypes.map(t => <option key={t.value} value={t.value}>{t.label}</option>)}
       </select>
       <input
         type="text"
         placeholder="Título"
         value={title}
         onChange={(e) => setTitle(e.target.value)}
-        className="contact-input"
+        style={{ padding: "0.5rem 0.75rem", borderRadius: "0.625rem", border: "1px solid #e7e5e4", fontSize: "0.8rem", backgroundColor: "#fff", outline: "none" }}
       />
       <textarea
         placeholder="Mensagem"
         value={message}
         onChange={(e) => setMessage(e.target.value)}
         rows={2}
-        className="contact-input"
-        style={{ resize: "none" }}
+        style={{ padding: "0.5rem 0.75rem", borderRadius: "0.625rem", border: "1px solid #e7e5e4", fontSize: "0.8rem", backgroundColor: "#fff", outline: "none", resize: "none" }}
       />
       <button
         onClick={handleSend}
-        className="bg-primary text-primary-foreground hover-bg-accent transition-colors d-flex align-items-center justify-content-center border-0"
-        style={{ gap: "0.5rem", padding: "0.5rem", borderRadius: "0.5rem" }}
+        className="border-0 d-flex align-items-center justify-content-center kb-transition fw-semibold"
+        style={{ gap: "0.375rem", padding: "0.5rem", borderRadius: "0.625rem", fontSize: "0.8rem", backgroundColor: "var(--primary)", color: "#fff", cursor: "pointer" }}
       >
-        <Send size={16} />
-        Enviar Notificação
+        <Send size={14} />
+        Enviar
       </button>
     </div>
   );

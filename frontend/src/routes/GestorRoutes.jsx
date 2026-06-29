@@ -1,47 +1,24 @@
 import { Route } from 'react-router'
+import { GestorLayout }          from '../components/GestorLayout'
 import { GestorDashboard }       from '../pages/gestor/GestorDashboard'
 import { GestorClientes }        from '../pages/gestor/GestorClientes'
 import { GestorClienteDetalhes } from '../pages/gestor/GestorClienteDetalhes'
 import { GestorDocumentos }      from '../pages/gestor/GestorDocumentos'
 import { GestorMensagens }       from '../pages/gestor/GestorMensagens'
 import { GestorPedidos }         from '../pages/gestor/GestorPedidos'
+import { LogsView }              from '../pages/admin/LogsView'
 import { ProtectedRoute }        from '../components/ProtectedRoute'
 
-const guard = (Component) => (
-    <ProtectedRoute role_id={2}>
-        <Component />
-    </ProtectedRoute>
+export const gestorRoutes = (
+    <Route element={<ProtectedRoute role_id={2} />}>
+        <Route element={<GestorLayout />}>
+            <Route path="/gestor"               element={<GestorDashboard />} />
+            <Route path="/gestor/clientes"       element={<GestorClientes />} />
+            <Route path="/gestor/clientes/:id"   element={<GestorClienteDetalhes />} />
+            <Route path="/gestor/documentos"     element={<GestorDocumentos />} />
+            <Route path="/gestor/mensagens"      element={<GestorMensagens />} />
+            <Route path="/gestor/pedidos"        element={<GestorPedidos />} />
+            <Route path="/gestor/logs"          element={<LogsView />} />
+        </Route>
+    </Route>
 )
-
-export const gestorRoutes = [
-    <Route
-        key="gestor-dash"
-        path="/gestor"
-        element={guard(GestorDashboard)}
-    />,
-    <Route
-        key="gestor-clientes"
-        path="/gestor/clientes"
-        element={guard(GestorClientes)}
-    />,
-    <Route
-        key="gestor-cliente-detalhes"
-        path="/gestor/clientes/:id"
-        element={guard(GestorClienteDetalhes)}
-    />,
-    <Route
-        key="gestor-documentos"
-        path="/gestor/documentos"
-        element={guard(GestorDocumentos)}
-    />,
-    <Route
-        key="gestor-mensagens"
-        path="/gestor/mensagens"
-        element={guard(GestorMensagens)}
-    />,
-    <Route
-        key="gestor-pedidos"
-        path="/gestor/pedidos"
-        element={guard(GestorPedidos)}
-    />,
-]

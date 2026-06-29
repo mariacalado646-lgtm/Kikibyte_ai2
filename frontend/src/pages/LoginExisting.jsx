@@ -11,7 +11,7 @@ const USER_TYPES = [
 ]
 
 // role_id → redirect path (adjust to match your DB roles)
-const REDIRECT_BY_ROLE = { 1: '/admin', 2: '/gestor', 3: '/' }
+const REDIRECT_BY_ROLE = { 1: '/admin', 2: '/gestor', 3: '/cliente' }
 
 export function LoginExisting() {
   const navigate = useNavigate()
@@ -86,7 +86,7 @@ export function LoginExisting() {
       className="form-control kb-input"
       placeholder={
         userType === 'admin'  ? 'admin@kikibyte.pt' :
-        userType === 'gestor' ? 'gestor@kikibyte.pt' :
+        userType === 'gestor' ? 'bruno@kikibyte.pt' :
         'o_seu@email.pt'
       }
       />

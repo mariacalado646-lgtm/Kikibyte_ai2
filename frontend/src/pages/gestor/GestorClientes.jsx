@@ -36,10 +36,10 @@ export function GestorClientes() {
     <div style={{ padding: "2rem" }}>
       {/* Header */}
       <div style={{ marginBottom: "2rem" }}>
-        <h1 className="text-3xl fw-bold text-foreground" style={{ marginBottom: "0.5rem" }}>
+        <h1 className="h3 fw-bold text-body" style={{ marginBottom: "0.5rem" }}>
           Gestão de Clientes
         </h1>
-        <p className="text-muted-foreground">
+        <p className="text-muted">
           Visualize e gerencie informações dos clientes
         </p>
       </div>
@@ -47,7 +47,7 @@ export function GestorClientes() {
       {/* Search */}
       <div style={{ marginBottom: "1.5rem" }}>
         <div className="position-relative" style={{ maxWidth: "28rem" }}>
-          <Search className="position-absolute top-50 translate-middle-y text-muted-foreground" style={{ left: "0.75rem" }} size={20} />
+          <Search className="position-absolute top-50 translate-middle-y text-muted" style={{ left: "0.75rem" }} size={20} />
           <input
             type="text"
             placeholder="Procurar por nome, email ou NIF..."
@@ -64,7 +64,7 @@ export function GestorClientes() {
         {filteredClients.map((client) => (
           <div
             key={client.id_cliente}
-            className="bg-white border border-border hover-shadow-md transition-all"
+            className="bg-white border border kb-hover-shadow kb-transition"
             style={{ borderRadius: "0.75rem", padding: "1.5rem" }}
           >
             <div className="d-flex flex-column sm-flex-row align-items-sm-center justify-content-between" style={{ gap: "1rem" }}>
@@ -73,10 +73,10 @@ export function GestorClientes() {
                   <User className="text-primary" style={{ width: "1.5rem", height: "1.5rem" }} />
                 </div>
                 <div>
-                  <h3 className="text-lg fw-semibold text-foreground" style={{ marginBottom: "0.25rem", marginTop: 0 }}>
+                  <h3 className="fs-5 fw-semibold text-body" style={{ marginBottom: "0.25rem", marginTop: 0 }}>
                     {client.nome}
                   </h3>
-                  <div className="space-y-1 text-sm text-muted-foreground">
+                  <div className="kb-space-y-1 small text-muted">
                     <p style={{ margin: 0 }}>📧 {client.email}</p>
                     <p style={{ margin: 0 }}>📱 {client.telefone}</p>
                     {client.nif && <p style={{ margin: 0 }}>🏢 NIF: {client.nif}</p>}
@@ -88,7 +88,7 @@ export function GestorClientes() {
               <div className="d-flex" style={{ gap: "0.5rem" }}>
                 <button
                   onClick={() => navigate(`/gestor/clientes/${client.id_cliente}`)}
-                  className="bg-primary text-primary-foreground hover-bg-accent transition-colors d-flex align-items-center border-0"
+                  className="bg-primary text-primary-foreground hover-bg-secondary kb-transition-bg d-flex align-items-center border-0"
                   style={{ paddingLeft: "1rem", paddingRight: "1rem", paddingTop: "0.5rem", paddingBottom: "0.5rem", borderRadius: "0.5rem", gap: "0.5rem" }}
                 >
                   <Eye size={18} />
@@ -98,30 +98,30 @@ export function GestorClientes() {
             </div>
 
             {/* Quick Stats */}
-            <div className="border-top border-border d-grid grid-cols-2 sm-grid-cols-4" style={{ marginTop: "1rem", paddingTop: "1rem", gap: "1rem" }}>
+            <div className="border-top border d-grid kb-grid-2 sm-kb-grid-4" style={{ marginTop: "1rem", paddingTop: "1rem", gap: "1rem" }}>
               <div className="text-center">
-                <p className="text-xs text-muted-foreground" style={{ marginBottom: "0.25rem" }}>
+                <p className="small text-muted" style={{ marginBottom: "0.25rem" }}>
                   Nível de Risco
                 </p>
-                <p className="fw-semibold text-foreground" style={{ margin: 0 }}>
+                <p className="fw-semibold text-body" style={{ margin: 0 }}>
                   {client.estado_conformidade || "N/A"}
                 </p>
               </div>
               <div className="text-center">
-                <p className="text-xs text-muted-foreground" style={{ marginBottom: "0.25rem" }}>
+                <p className="small text-muted" style={{ marginBottom: "0.25rem" }}>
                   Último Acesso
                 </p>
-                <p className="fw-semibold text-foreground" style={{ margin: 0 }}>
+                <p className="fw-semibold text-body" style={{ margin: 0 }}>
                   {client.created_at ? new Date(client.created_at).toLocaleDateString("pt-PT") : "N/A"}
                 </p>
               </div>
               <div className="text-center">
-                <p className="text-xs text-muted-foreground" style={{ marginBottom: "0.25rem" }}>Documentos</p>
-                <p className="fw-semibold text-foreground" style={{ margin: 0 }}>0</p>
+                <p className="small text-muted" style={{ marginBottom: "0.25rem" }}>Documentos</p>
+                <p className="fw-semibold text-body" style={{ margin: 0 }}>0</p>
               </div>
               <div className="text-center">
-                <p className="text-xs text-muted-foreground" style={{ marginBottom: "0.25rem" }}>Estado</p>
-                <span className="d-inline-block text-xs fw-semibold bg-green-100 text-green-700" style={{ paddingLeft: "0.5rem", paddingRight: "0.5rem", paddingTop: "0.25rem", paddingBottom: "0.25rem", borderRadius: "0.25rem" }}>
+                <p className="small text-muted" style={{ marginBottom: "0.25rem" }}>Estado</p>
+                <span className="d-inline-block small fw-semibold kb-bg-green-100 kb-text-green" style={{ paddingLeft: "0.5rem", paddingRight: "0.5rem", paddingTop: "0.25rem", paddingBottom: "0.25rem", borderRadius: "0.25rem" }}>
                   {client.ativo ? "Ativo" : "Inativo"}
                 </span>
               </div>
@@ -130,18 +130,18 @@ export function GestorClientes() {
         ))}
 
         {loading && (
-          <div className="bg-white border border-border text-center" style={{ borderRadius: "0.75rem", padding: "3rem" }}>
-            <p className="text-muted-foreground" style={{ margin: 0 }}>A carregar clientes...</p>
+          <div className="bg-white border border text-center" style={{ borderRadius: "0.75rem", padding: "3rem" }}>
+            <p className="text-muted" style={{ margin: 0 }}>A carregar clientes...</p>
           </div>
         )}
 
         {!loading && filteredClients.length === 0 && (
-          <div className="bg-white border border-border text-center" style={{ borderRadius: "0.75rem", padding: "3rem" }}>
-            <User className="text-muted-foreground mx-auto mb-4" style={{ width: "3rem", height: "3rem" }} />
-            <h3 className="text-lg fw-semibold text-foreground" style={{ marginBottom: "0.5rem" }}>
+          <div className="bg-white border border text-center" style={{ borderRadius: "0.75rem", padding: "3rem" }}>
+            <User className="text-muted mx-auto mb-4" style={{ width: "3rem", height: "3rem" }} />
+            <h3 className="fs-5 fw-semibold text-body" style={{ marginBottom: "0.5rem" }}>
               Nenhum cliente encontrado
             </h3>
-            <p className="text-muted-foreground" style={{ margin: 0 }}>
+            <p className="text-muted" style={{ margin: 0 }}>
               {searchTerm
                 ? "Tente outro termo de pesquisa"
                 : "Ainda não existem clientes registados"}

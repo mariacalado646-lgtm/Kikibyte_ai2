@@ -1,14 +1,27 @@
-import { useNavigate } from 'react-router'
+import { useState, useEffect } from 'react'
 import { ChevronDown } from 'lucide-react'
+import { api } from '../services/api'
 import mascotImg from '../assets/hero.png'
 
 export function Hero() {
-  const navigate = useNavigate()
+  const [heroData, setHeroData] = useState(null)
+
+  useEffect(() => {
+    api.get('/empresas/public')
+      .then(r => {
+        const cfg = r.data?.site_config
+        if (cfg?.hero) setHeroData(cfg.hero)
+      })
+      .catch(() => {})
+  }, [])
 
   const scrollToSection = (id) => {
     const element = document.getElementById(id)
     if (element) element.scrollIntoView({ behavior: 'smooth' })
   }
+
+  const title = heroData?.title || 'Proteja o seu negócio com'
+  const subtitle = heroData?.subtitle || 'Soluções de cibersegurança especializadas em conformidade NIS2 e CNCS para empresas portuguesas'
 
   return (
     <section id="hero" className="kb-hero d-flex align-items-center justify-content-center">
@@ -17,10 +30,10 @@ export function Hero() {
     <div className="col-md-6">
     <div className="d-flex flex-column gap-4">
     <h1 className="kb-h1">
-    Proteja o seu negócio com <span className="kb-brand">KikiByte</span>
+    {title} <span className="kb-brand">KikiByte</span>
     </h1>
     <p className="kb-lead">
-    Soluções de cibersegurança especializadas em conformidade NIS2 e CNCS para empresas portuguesas
+    {subtitle}
     </p>
     <div className="d-flex flex-column flex-sm-row gap-3">
     <button className="btn-kb-primary" onClick={() => scrollToSection('services')}>

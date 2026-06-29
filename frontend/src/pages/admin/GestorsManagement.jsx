@@ -1,30 +1,28 @@
 import { useState, useEffect } from 'react'
 import { Plus, Search, Edit2, Trash2, Mail, Phone, UserCog, Eye, EyeOff } from 'lucide-react'
+import { utilizadorService } from '../../services/adminservice'
 
-const INITIAL_FORM = { name: '', email: '', phone: '', username: '', password: '' }
+const INITIAL_FORM = { nome: '', email: '', password: '' }
 
 export function GestorsManagement() {
   const [gestors, setGestors]             = useState([])
+  const [loading, setLoading]             = useState(true)
   const [searchTerm, setSearchTerm]       = useState('')
   const [isDialogOpen, setIsDialogOpen]   = useState(false)
   const [editingGestor, setEditingGestor] = useState(null)
   const [showPassword, setShowPassword]   = useState(false)
   const [formData, setFormData]           = useState(INITIAL_FORM)
+  const [submitting, setSubmitting]       = useState(false)
 
-  useEffect(() => {
-    const stored = localStorage.getItem('gestors')
-    if (stored) {
-      setGestors(JSON.parse(stored).filter(g => !g.isDeleted))
-    } else {
-      const defaults = [{
-        id: 1, name: 'Gestor Principal', email: 'gestor@kikibyte.pt',
-        phone: '+351 910000000', username: 'gestor', password: 'gestor123',
-        createdAt: '2026-01-01', lastLogin: '2026-05-29'
-      }]
-      setGestors(defaults)
-      localStorage.setItem('gestors', JSON.stringify(defaults))
-    }
-  }, [])
+  const carregarGestores = () => {
+    setLoading(true)
+    utilizadorService.listar({ role_id: 2, ativo: true })
+      .then(setGestors)
+      .catch(() => setGestors([]))
+      .finally(() => setLoading(false))
+  }
+
+  useEffect(() => { carregarGestores() }, [])
 
   const resetForm = () => {
     setFormData(INITIAL_FORM)
@@ -37,57 +35,53 @@ export function GestorsManagement() {
     resetForm()
   }
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
-    const all = JSON.parse(localStorage.getItem('gestors') || '[]')
-
-    if (editingGestor) {
-      const updated = all.map(g => {
-        if (g.id !== editingGestor.id) return g
-          const merged = { ...g, ...formData }
-          if (!formData.password) merged.password = g.password
-            return merged
-      })
-      localStorage.setItem('gestors', JSON.stringify(updated))
-      setGestors(updated.filter(g => !g.isDeleted))
-      // toast.success('Gestor atualizado com sucesso!')
-    } else {
-      const newGestor = {
-        id: Date.now(),
-        ...formData,
-        createdAt: new Date().toISOString().split('T')[0]
+    setSubmitting(true)
+    try {
+      if (editingGestor) {
+        const payload = { nome: formData.nome, email: formData.email }
+        if (formData.password) payload.password = formData.password
+        await utilizadorService.atualizar(editingGestor.id_utilizador, payload)
+      } else {
+        await utilizadorService.criar({
+          nome: formData.nome,
+          email: formData.email,
+          password: formData.password,
+          role_id: 2,
+        })
       }
-      const updated = [...all, newGestor]
-      localStorage.setItem('gestors', JSON.stringify(updated))
-      setGestors(updated.filter(g => !g.isDeleted))
-      // toast.success('Gestor criado com sucesso!')
+      carregarGestores()
+      closeDialog()
+    } catch (err) {
+      alert(err.response?.data?.error || 'Erro ao salvar gestor')
+    } finally {
+      setSubmitting(false)
     }
-    closeDialog()
   }
 
   const handleEdit = (gestor) => {
     setEditingGestor(gestor)
     setFormData({
-      name: gestor.name, email: gestor.email,
-      phone: gestor.phone, username: gestor.username, password: ''
+      nome: gestor.nome, email: gestor.email, password: ''
     })
     setIsDialogOpen(true)
   }
 
-  const handleDelete = (id) => {
-    if (!confirm('Tem certeza que deseja eliminar este gestor?')) return
-      const all = JSON.parse(localStorage.getItem('gestors') || '[]')
-      const updated = all.map(g => g.id === id ? { ...g, isDeleted: true } : g)
-      localStorage.setItem('gestors', JSON.stringify(updated))
-      setGestors(updated.filter(g => !g.isDeleted))
-      // toast.success('Gestor eliminado com sucesso!')
+  const handleDelete = async (id) => {
+    if (!confirm('Tem certeza que deseja desativar este gestor?')) return
+    try {
+      await utilizadorService.remover(id)
+      carregarGestores()
+    } catch (err) {
+      alert(err.response?.data?.error || 'Erro ao desativar gestor')
+    }
   }
 
   const filteredGestors = gestors.filter(g => {
     const q = searchTerm.toLowerCase()
-    return g.name.toLowerCase().includes(q)
-    || g.email.toLowerCase().includes(q)
-    || g.username.toLowerCase().includes(q)
+    return (g.nome || '').toLowerCase().includes(q)
+    || (g.email || '').toLowerCase().includes(q)
   })
 
   return (
@@ -129,7 +123,9 @@ export function GestorsManagement() {
     </tr>
     </thead>
     <tbody>
-    {filteredGestors.length === 0 ? (
+    {loading ? (
+      <tr><td colSpan={5} className="text-center py-5"><div className="spinner-border spinner-border-sm text-primary" role="status"><span className="visually-hidden">A carregar...</span></div></td></tr>
+    ) : (filteredGestors.length === 0 ? (
       <tr>
       <td colSpan={5} className="text-center text-muted py-5">
       <UserCog size={42} className="mb-2 opacity-25" />
@@ -138,26 +134,23 @@ export function GestorsManagement() {
       </tr>
     ) : (
       filteredGestors.map(gestor => (
-        <tr key={gestor.id}>
+        <tr key={gestor.id_utilizador}>
         <td>
-        <div className="fw-semibold">{gestor.name}</div>
-        <div className="x-small text-muted">Desde {gestor.createdAt}</div>
+        <div className="fw-semibold">{gestor.nome}</div>
+        <div className="small text-muted">Desde {gestor.created_at ? new Date(gestor.created_at).toLocaleDateString('pt-PT') : '-'}</div>
         </td>
         <td>
         <div className="d-flex align-items-center gap-2 small mb-1">
         <Mail size={14} className="text-muted" /> {gestor.email}
         </div>
-        <div className="d-flex align-items-center gap-2 small">
-        <Phone size={14} className="text-muted" /> {gestor.phone}
-        </div>
         </td>
         <td>
         <span className="d-inline-flex align-items-center gap-1 rounded-pill small fw-bold px-2 py-1"
         style={{ background: 'rgba(194,65,12,.1)', color: 'var(--kb-primary)' }}>
-        <UserCog size={12} /> {gestor.username}
+        <UserCog size={12} /> Gestor
         </span>
         </td>
-        <td className="small text-muted">{gestor.lastLogin || 'Nunca'}</td>
+        <td className="small text-muted">{gestor.ultimo_login ? new Date(gestor.ultimo_login).toLocaleDateString('pt-PT') : 'Nunca'}</td>
         <td>
         <div className="d-flex align-items-center justify-content-end gap-1">
         <button
@@ -168,9 +161,9 @@ export function GestorsManagement() {
         <Edit2 size={16} />
         </button>
         <button
-        onClick={() => handleDelete(gestor.id)}
+        onClick={() => handleDelete(gestor.id_utilizador)}
         className="btn btn-sm btn-link text-danger p-1"
-        title="Eliminar"
+        title="Desativar"
         >
         <Trash2 size={16} />
         </button>
@@ -178,7 +171,7 @@ export function GestorsManagement() {
         </td>
         </tr>
       ))
-    )}
+    ))}
     </tbody>
     </table>
     </div>
@@ -196,7 +189,7 @@ export function GestorsManagement() {
     <div className="bg-white border rounded-3 p-3">
     <div className="small text-muted mb-1">Gestores Ativos</div>
     <div className="fs-3 fw-bold" style={{ color: '#16a34a' }}>
-    {gestors.filter(g => g.lastLogin).length}
+    {gestors.filter(g => g.ultimo_login).length}
     </div>
     </div>
     </div>
@@ -205,7 +198,7 @@ export function GestorsManagement() {
     <div className="small text-muted mb-1">Novos este Mês</div>
     <div className="fs-3 fw-bold kb-brand">
     {gestors.filter(g => {
-      const created = new Date(g.createdAt)
+      const created = new Date(g.created_at)
       const now = new Date()
       return created.getMonth() === now.getMonth() && created.getFullYear() === now.getFullYear()
     }).length}
@@ -237,8 +230,8 @@ export function GestorsManagement() {
       <label className="form-label small fw-medium">Nome Completo *</label>
       <input
       type="text" required
-      value={formData.name}
-      onChange={e => setFormData({ ...formData, name: e.target.value })}
+      value={formData.nome}
+      onChange={e => setFormData({ ...formData, nome: e.target.value })}
       className="form-control kb-input"
       placeholder="Nome do gestor"
       />
@@ -253,33 +246,6 @@ export function GestorsManagement() {
       className="form-control kb-input"
       placeholder="email@kikibyte.pt"
       />
-      </div>
-
-      <div className="mb-3">
-      <label className="form-label small fw-medium">Telefone *</label>
-      <input
-      type="tel" required
-      value={formData.phone}
-      onChange={e => setFormData({ ...formData, phone: e.target.value })}
-      className="form-control kb-input"
-      placeholder="+351 912 345 678"
-      />
-      </div>
-
-      <div className="mb-3">
-      <label className="form-label small fw-medium">Nome de Utilizador *</label>
-      <input
-      type="text"
-      required={!editingGestor}
-      value={formData.username}
-      onChange={e => setFormData({ ...formData, username: e.target.value })}
-      className="form-control kb-input"
-      placeholder="utilizador"
-      disabled={!!editingGestor}
-      />
-      {editingGestor && (
-        <small className="text-muted">O nome de utilizador não pode ser alterado</small>
-      )}
       </div>
 
       <div className="mb-3">
@@ -313,8 +279,8 @@ export function GestorsManagement() {
       <button type="button" onClick={closeDialog} className="btn btn-outline-secondary flex-grow-1">
       Cancelar
       </button>
-      <button type="submit" className="btn-kb-primary flex-grow-1 justify-content-center">
-      {editingGestor ? 'Atualizar' : 'Criar'}
+      <button type="submit" disabled={submitting} className="btn-kb-primary flex-grow-1 justify-content-center">
+      {submitting ? 'A salvar...' : (editingGestor ? 'Atualizar' : 'Criar')}
       </button>
       </div>
       </form>

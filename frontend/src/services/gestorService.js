@@ -12,6 +12,7 @@ export const documentoService = {
     listar:   (params)           => api.get('/documentos', { params }).then(r => r.data),
     obter:    (id)               => api.get(`/documentos/${id}`).then(r => r.data),
     criar:    (data)             => api.post('/documentos', data).then(r => r.data),
+    atualizar:(id, data)         => api.put(`/documentos/${id}`, data).then(r => r.data),
     remover:  (id)               => api.delete(`/documentos/${id}`).then(r => r.data),
 }
 
@@ -42,4 +43,9 @@ export const relatorioService = {
     listar:   (params)           => api.get('/relatorios', { params }).then(r => r.data),
     obter:    (id)               => api.get(`/relatorios/${id}`).then(r => r.data),
     criar:    (data)             => api.post('/relatorios', data).then(r => r.data),
+}
+
+export const mensagemDiretaService = {
+    listarPorCliente: (cliente_id) => api.get('/mensagens-diretas', { params: { cliente_id } }).then(r => r.data),
+    enviar:           (data)       => api.post('/mensagens-diretas', data).then(r => r.data),
 }

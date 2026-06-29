@@ -3,7 +3,13 @@ import { Cliente } from '../models/Cliente.js'
 
 export const listar = async (req, res) => {
     try {
+        const { cliente_id, publicado_cliente } = req.query
+        const where = {}
+        if (cliente_id) where.cliente_id = cliente_id
+        if (publicado_cliente !== undefined) where.publicado_cliente = publicado_cliente === 'true'
+
         const relatorios = await Relatorio.findAll({
+            where,
             include: [{ model: Cliente, as: 'cliente', attributes: ['id_cliente', 'nome'] }],
             order: [['created_at', 'DESC']]
         })

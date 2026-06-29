@@ -6,6 +6,7 @@ export const Notificacao = sequelize.define('Notificacao', {
     utilizador_id:   { type: DataTypes.INTEGER, allowNull: false },
     titulo:          { type: DataTypes.STRING, allowNull: false },
     mensagem:        { type: DataTypes.TEXT, allowNull: false },
+    tipo:            { type: DataTypes.STRING, defaultValue: 'info' },
     lida:            { type: DataTypes.BOOLEAN, defaultValue: false },
     created_at:      { type: DataTypes.DATE }
 }, { tableName: 'notificacao', timestamps: false })

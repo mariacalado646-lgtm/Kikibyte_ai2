@@ -1,15 +1,16 @@
-import { Navigate } from 'react-router'
+import { Navigate, Outlet } from 'react-router'
+import { useAuth } from '../context/AuthContext'
 
 export function ProtectedRoute({ children, role_id }) {
-    const token   = localStorage.getItem('token')
-    const userStr = localStorage.getItem('user')
+    const { user } = useAuth()
 
-    if (!token || !userStr) return <Navigate to="/login" replace />
+    if (!user) return <Navigate to="/login" replace />
 
-        const user = JSON.parse(userStr)
-        if (role_id && Number(user.role_id) !== role_id) {
-            return <Navigate to="/" replace />
-        }
+    // role_id from JWT (signed server-side, cannot be tampered with)
+    if (role_id && Number(user.role_id) !== role_id) {
+        return <Navigate to="/" replace />
+    }
 
-        return children
+    // If used as a layout route (no children), render nested routes via Outlet
+    return children || <Outlet />
 }

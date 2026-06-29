@@ -11,14 +11,18 @@ export const login = async (req, res) => {
             return res.status(400).json({ error: 'Email/utilizador e password são obrigatórios' })
         }
 
-        // search by email OR by nome (treating nome as username)
+        // search by email
         const user = await Utilizador.findOne({
             where: { email, ativo: true }
         })
 
         if (!user) return res.status(401).json({ error: 'Credenciais inválidas' })
 
-                await user.update({ ultimo_login: new Date() })
+        // 🔐 VERIFY PASSWORD - this was missing!
+        const validPassword = await bcrypt.compare(password, user.password_hash)
+        if (!validPassword) return res.status(401).json({ error: 'Credenciais inválidas' })
+
+        await user.update({ ultimo_login: new Date() })
 
                 const token = jwt.sign(
                     {

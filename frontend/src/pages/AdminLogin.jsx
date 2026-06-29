@@ -4,20 +4,10 @@ import { Lock, LogIn, User, UserCog } from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "../context/AuthContext";
 import { login as apiLogin } from "../services/authService";
+import { api } from "../services/api";
 import logoImg from "../assets/logo.png";
 
-// Maps user types to their email domain for the lookup
-const EMAIL_MAP = {
-  admin:  (u) => u.includes("@") ? u : `${u}@kikibyte.pt`,
-  gestor: (u) => u.includes("@") ? u : `${u}@kikibyte.pt`,
-  client: (u) => u,  // clients always use raw email
-};
-
-const REDIRECT_BY_TYPE = {
-  admin:  "/admin",
-  gestor: "/gestor",
-  client: "/",
-};
+const REDIRECT_BY_ROLE = { 1: "/admin", 2: "/gestor", 3: "/cliente" };
 
 export function AdminLogin() {
   const navigate = useNavigate();
@@ -42,15 +32,16 @@ export function AdminLogin() {
     setIsLoading(true);
 
     try {
-      const email = EMAIL_MAP[userType](credentials.username);
-      const { token, user } = await apiLogin(email, credentials.password);
+      const { token, user } = await apiLogin(credentials.username, credentials.password);
 
       localStorage.setItem("token", token);
       localStorage.setItem("user", JSON.stringify(user));
       authLogin(user);
 
       toast.success("Login efetuado com sucesso!");
-      navigate(REDIRECT_BY_TYPE[userType]);
+      // redirect based on actual role from server, not the selected tab
+      const path = REDIRECT_BY_ROLE[user.role_id] ?? "/";
+      navigate(path);
     } catch (err) {
       const msg = err.response?.data?.error || "Credenciais inválidas.";
       toast.error(msg);
@@ -59,34 +50,36 @@ export function AdminLogin() {
     }
   };
 
-  const handleNewClientSubmit = (e) => {
+  const handleNewClientSubmit = async (e) => {
     e.preventDefault();
-    // Save new client request to localStorage (pending approval)
-    const pendingRequests = JSON.parse(
-      localStorage.getItem("pending_client_requests") || "[]",
-    );
-    const newRequest = {
-      id: Date.now(),
-      ...newClientData,
-      requestDate: new Date().toISOString().split("T")[0],
-      status: "pending",
-    };
-    pendingRequests.push(newRequest);
-    localStorage.setItem(
-      "pending_client_requests",
-      JSON.stringify(pendingRequests),
-    );
-    toast.success(
-      "Pedido enviado com sucesso! Entraremos em contacto em breve.",
-    );
-    setNewClientData({
-      name: "",
-      contact: "",
-      email: "",
-      phone: "",
-      nif: "",
-    });
-    setClientMode("existing");
+    setIsLoading(true);
+
+    try {
+      await api.post("/pedidos-acesso", {
+        nome_empresa: newClientData.name,
+        pessoa_contacto: newClientData.contact,
+        email: newClientData.email,
+        telefone: newClientData.phone,
+        nif: newClientData.nif,
+      });
+
+      toast.success(
+        "Pedido enviado com sucesso! Entraremos em contacto em breve.",
+      );
+      setNewClientData({
+        name: "",
+        contact: "",
+        email: "",
+        phone: "",
+        nif: "",
+      });
+      setClientMode("existing");
+    } catch (err) {
+      console.error("Erro ao enviar pedido:", err);
+      toast.error(err.response?.data?.error || "Erro ao enviar pedido. Tente novamente.");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -96,40 +89,39 @@ export function AdminLogin() {
         <div className="text-center" style={{ marginBottom: '2rem' }}>
           <div className="d-inline-flex align-items-center mb-4" style={{ gap: '0.75rem' }}>
             <img src={logoImg} alt="KikiByte Logo" style={{ height: '4rem', width: '4rem' }} />
-            <span className="text-3xl text-primary fw-bold">KikiByte</span>
+            <span className="h3 text-primary fw-bold">KikiByte</span>
           </div>
-          <p className="text-muted-foreground">Portal de Autenticação</p>
+          <p className="text-muted">Portal de Autenticação</p>
         </div>
 
         {/* Demo Credentials Info */}
-        <div className="border border-blue-200" style={{ backgroundColor: '#eff6ff', borderRadius: '0.75rem', padding: '1rem', marginBottom: '1.5rem' }}>
-          <p className="text-sm fw-semibold text-blue-900" style={{ marginBottom: '0.5rem', color: '#1e3a8a' }}>
+        <div className="border border-primary border-opacity-25" style={{ backgroundColor: '#eff6ff', borderRadius: '0.75rem', padding: '1rem', marginBottom: '1.5rem' }}>
+          <p className="small fw-semibold text-primary" style={{ marginBottom: '0.5rem' }}>
             💡 Credenciais de Demonstração:
           </p>
-          <div className="text-xs space-y-1" style={{ color: '#1e40af' }}>
+          <div className="small kb-space-y-1" style={{ color: '#1e40af' }}>
             <p>
-              <strong>Admin:</strong> admin / admin123
+              <strong>Admin:</strong> admin@kikibyte.pt / admin123
             </p>
             <p>
-              <strong>Gestor Padrão:</strong> gestor / gestor123
+              <strong>Gestor:</strong> bruno@kikibyte.pt / kikibyte2025
             </p>
             <p>
-              <strong>Clientes:</strong> Utilize os emails dos clientes criados
-              pelo admin (senha padrão: demo123)
+              <strong>Clientes:</strong> Utilize o email completo (ex: diana@securibank.pt) com a senha: kikibyte2025
             </p>
           </div>
         </div>
 
         {/* User Type Selector */}
-        <div className="bg-white shadow-xl" style={{ borderRadius: '1rem', boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)', padding: '1rem', marginBottom: '1.5rem' }}>
-          <div className="d-grid grid-cols-3" style={{ gap: '0.5rem' }}>
+        <div className="bg-white shadow-lg" style={{ borderRadius: '1rem', boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)', padding: '1rem', marginBottom: '1.5rem' }}>
+          <div className="d-grid kb-grid-3" style={{ gap: '0.5rem' }}>
             <button
               type="button"
               onClick={() => setUserType("admin")}
-              className={`transition-all d-flex flex-column align-items-center justify-content-center ${
+              className={`kb-transition d-flex flex-column align-items-center justify-content-center ${
                 userType === "admin"
                   ? "bg-primary text-primary-foreground shadow-sm"
-                  : "text-muted-foreground hover-bg-muted"
+                  : "text-muted hover-bg-light"
               }`}
               style={{
                 padding: '0.75rem',
@@ -140,15 +132,15 @@ export function AdminLogin() {
               }}
             >
               <Lock size={18} />
-              <span className="text-xs">Admin</span>
+              <span className="small">Admin</span>
             </button>
             <button
               type="button"
               onClick={() => setUserType("gestor")}
-              className={`transition-all d-flex flex-column align-items-center justify-content-center ${
+              className={`kb-transition d-flex flex-column align-items-center justify-content-center ${
                 userType === "gestor"
                   ? "bg-primary text-primary-foreground shadow-sm"
-                  : "text-muted-foreground hover-bg-muted"
+                  : "text-muted hover-bg-light"
               }`}
               style={{
                 padding: '0.75rem',
@@ -159,15 +151,15 @@ export function AdminLogin() {
               }}
             >
               <UserCog size={18} />
-              <span className="text-xs">Gestor</span>
+              <span className="small">Gestor</span>
             </button>
             <button
               type="button"
               onClick={() => setUserType("client")}
-              className={`transition-all d-flex flex-column align-items-center justify-content-center ${
+              className={`kb-transition d-flex flex-column align-items-center justify-content-center ${
                 userType === "client"
                   ? "bg-primary text-primary-foreground shadow-sm"
-                  : "text-muted-foreground hover-bg-muted"
+                  : "text-muted hover-bg-light"
               }`}
               style={{
                 padding: '0.75rem',
@@ -178,22 +170,22 @@ export function AdminLogin() {
               }}
             >
               <User size={18} />
-              <span className="text-xs">Cliente</span>
+              <span className="small">Cliente</span>
             </button>
           </div>
         </div>
 
         {/* Client Mode Selector (only show for clients) */}
         {userType === "client" && (
-          <div className="bg-white shadow-xl" style={{ borderRadius: '1rem', boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)', padding: '1rem', marginBottom: '1.5rem' }}>
-            <div className="d-grid grid-cols-2" style={{ gap: '0.5rem' }}>
+          <div className="bg-white shadow-lg" style={{ borderRadius: '1rem', boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)', padding: '1rem', marginBottom: '1.5rem' }}>
+            <div className="d-grid kb-grid-2" style={{ gap: '0.5rem' }}>
               <button
                 type="button"
                 onClick={() => setClientMode("existing")}
-                className={`transition-all text-sm ${
+                className={`kb-transition small ${
                   clientMode === "existing"
-                    ? "bg-accent text-accent-foreground shadow-sm"
-                    : "text-muted-foreground hover-bg-muted"
+                    ? "bg-secondary text-accent-foreground shadow-sm"
+                    : "text-muted hover-bg-light"
                 }`}
                 style={{
                   paddingLeft: '1rem',
@@ -210,10 +202,10 @@ export function AdminLogin() {
               <button
                 type="button"
                 onClick={() => setClientMode("new")}
-                className={`transition-all text-sm ${
+                className={`kb-transition small ${
                   clientMode === "new"
-                    ? "bg-accent text-accent-foreground shadow-sm"
-                    : "text-muted-foreground hover-bg-muted"
+                    ? "bg-secondary text-accent-foreground shadow-sm"
+                    : "text-muted hover-bg-light"
                 }`}
                 style={{
                   paddingLeft: '1rem',
@@ -237,12 +229,12 @@ export function AdminLogin() {
           clientMode === "existing") && (
           <form
             onSubmit={handleSubmit}
-            className="bg-white space-y-6"
+            className="bg-white kb-space-y-6"
             style={{ borderRadius: '1rem', boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)', padding: '2rem' }}
           >
             <div>
-              <label className="d-block text-sm fw-medium text-foreground" style={{ marginBottom: '0.5rem' }}>
-                {userType === "client" ? "Email" : "Utilizador"}
+              <label className="d-block small fw-medium text-body" style={{ marginBottom: '0.5rem' }}>
+                Email
               </label>
               <input
                 type="text"
@@ -256,14 +248,14 @@ export function AdminLogin() {
                   userType === "client"
                     ? "seu@email.pt"
                     : userType === "admin"
-                      ? "admin"
-                      : "gestor"
+                      ? "admin@kikibyte.pt"
+                      : "bruno@kikibyte.pt"
                 }
               />
             </div>
 
             <div>
-              <label className="d-block text-sm fw-medium text-foreground" style={{ marginBottom: '0.5rem' }}>
+              <label className="d-block small fw-medium text-body" style={{ marginBottom: '0.5rem' }}>
                 Palavra-passe
               </label>
               <input
@@ -280,7 +272,7 @@ export function AdminLogin() {
 
             <button
               type="submit"
-              className="w-100 bg-primary text-primary-foreground hover-bg-accent transition-colors d-inline-flex align-items-center justify-content-center fw-semibold"
+              className="w-100 bg-primary text-primary-foreground hover-bg-secondary kb-transition-bg d-inline-flex align-items-center justify-content-center fw-semibold"
               style={{ paddingLeft: '1.5rem', paddingRight: '1.5rem', paddingTop: '0.75rem', paddingBottom: '0.75rem', borderRadius: '0.5rem', gap: '0.5rem' }}
             >
               <LogIn size={20} />
@@ -291,7 +283,7 @@ export function AdminLogin() {
               <button
                 type="button"
                 onClick={() => navigate("/")}
-                className="text-sm text-muted-foreground hover-text-primary transition-colors border-0 bg-transparent"
+                className="small text-muted kb-hover-text-primary kb-transition-bg border-0 bg-transparent"
               >
                 ← Voltar ao site
               </button>
@@ -303,21 +295,21 @@ export function AdminLogin() {
         {userType === "client" && clientMode === "new" && (
           <form
             onSubmit={handleNewClientSubmit}
-            className="bg-white space-y-6"
+            className="bg-white kb-space-y-6"
             style={{ borderRadius: '1rem', boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)', padding: '2rem' }}
           >
             <div>
-              <h3 className="text-lg fw-semibold text-foreground" style={{ marginBottom: '0.5rem' }}>
+              <h3 className="fs-5 fw-semibold text-body" style={{ marginBottom: '0.5rem' }}>
                 Pedido de Acesso
               </h3>
-              <p className="text-sm text-muted-foreground">
+              <p className="small text-muted">
                 Preencha o formulário abaixo. Entraremos em contacto em breve
                 para criar as suas credenciais.
               </p>
             </div>
 
             <div>
-              <label className="d-block text-sm fw-medium text-foreground" style={{ marginBottom: '0.5rem' }}>
+              <label className="d-block small fw-medium text-body" style={{ marginBottom: '0.5rem' }}>
                 Nome da Empresa *
               </label>
               <input
@@ -333,7 +325,7 @@ export function AdminLogin() {
             </div>
 
             <div>
-              <label className="d-block text-sm fw-medium text-foreground" style={{ marginBottom: '0.5rem' }}>
+              <label className="d-block small fw-medium text-body" style={{ marginBottom: '0.5rem' }}>
                 Pessoa de Contacto *
               </label>
               <input
@@ -352,7 +344,7 @@ export function AdminLogin() {
             </div>
 
             <div>
-              <label className="d-block text-sm fw-medium text-foreground" style={{ marginBottom: '0.5rem' }}>
+              <label className="d-block small fw-medium text-body" style={{ marginBottom: '0.5rem' }}>
                 Email *
               </label>
               <input
@@ -368,7 +360,7 @@ export function AdminLogin() {
             </div>
 
             <div>
-              <label className="d-block text-sm fw-medium text-foreground" style={{ marginBottom: '0.5rem' }}>
+              <label className="d-block small fw-medium text-body" style={{ marginBottom: '0.5rem' }}>
                 Telefone *
               </label>
               <input
@@ -384,7 +376,7 @@ export function AdminLogin() {
             </div>
 
             <div>
-              <label className="d-block text-sm fw-medium text-foreground" style={{ marginBottom: '0.5rem' }}>
+              <label className="d-block small fw-medium text-body" style={{ marginBottom: '0.5rem' }}>
                 NIF
               </label>
               <input
@@ -400,18 +392,19 @@ export function AdminLogin() {
 
             <button
               type="submit"
-              className="w-100 bg-primary text-primary-foreground hover-bg-accent transition-colors d-inline-flex align-items-center justify-content-center fw-semibold"
-              style={{ paddingLeft: '1.5rem', paddingRight: '1.5rem', paddingTop: '0.75rem', paddingBottom: '0.75rem', borderRadius: '0.5rem', gap: '0.5rem' }}
+              disabled={isLoading}
+              className="w-100 bg-primary text-primary-foreground hover-bg-secondary kb-transition-bg d-inline-flex align-items-center justify-content-center fw-semibold border-0"
+              style={{ paddingLeft: '1.5rem', paddingRight: '1.5rem', paddingTop: '0.75rem', paddingBottom: '0.75rem', borderRadius: '0.5rem', gap: '0.5rem', opacity: isLoading ? 0.6 : 1 }}
             >
               <User size={20} />
-              Enviar Pedido
+              {isLoading ? 'A enviar...' : 'Enviar Pedido'}
             </button>
 
             <div className="text-center">
               <button
                 type="button"
                 onClick={() => navigate("/")}
-                className="text-sm text-muted-foreground hover-text-primary transition-colors border-0 bg-transparent"
+                className="small text-muted kb-hover-text-primary kb-transition-bg border-0 bg-transparent"
               >
                 ← Voltar ao site
               </button>

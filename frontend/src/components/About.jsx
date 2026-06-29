@@ -1,10 +1,20 @@
+import { useState, useEffect } from 'react'
 import { Target, Eye, Award } from 'lucide-react'
+import { api } from '../services/api'
 
 export function About() {
+  const [content, setContent] = useState(null)
+
+  useEffect(() => {
+    api.get('/empresas/public')
+      .then(r => setContent(r.data))
+      .catch(() => {}) // silencia erro, fallback para hardcoded
+  }, [])
+
   const values = [
-    { icon: Target, title: 'Missão', description: 'Proteger empresas e organizações através de soluções de cibersegurança inovadoras e personalizadas, garantindo a continuidade dos negócios num mundo digital em constante evolução.' },
-    { icon: Eye,    title: 'Visão',  description: 'Ser a referência nacional em cibersegurança, reconhecida pela excelência técnica, inovação contínua e compromisso com a proteção dos dados dos nossos clientes.' },
-    { icon: Award,  title: 'Valores',description: 'Integridade, confiança, inovação e excelência. Comprometemo-nos com os mais altos padrões de ética e profissionalismo em todas as nossas ações.' },
+    { icon: Target, title: 'Missão', description: content?.missao || 'Carregando...' },
+    { icon: Eye,    title: 'Visão',  description: content?.visao || 'Carregando...' },
+    { icon: Award,  title: 'Valores',description: content?.valores || 'Carregando...' },
   ]
 
   const stats = [

@@ -1,17 +1,39 @@
 import { Shield, Lock, Search, FileCheck, Users, CloudCog } from 'lucide-react'
+import { useState, useEffect } from 'react'
+import { api } from '../services/api'
+
+const FALLBACK_SERVICES = [
+  { icon: Shield,   title: 'Avaliação de Maturidade de TI',  description: 'Análise completa do nível de maturidade da sua infraestrutura tecnológica, identificando pontos fortes e áreas de melhoria.' },
+  { icon: Search,   title: 'PenTest & Testes de Intrusão',   description: 'Testes de penetração avançados para identificar vulnerabilidades antes que sejam exploradas por agentes maliciosos.' },
+  { icon: FileCheck,title: 'Compliance NIS2',                description: 'Consultoria especializada para garantir conformidade com a Diretiva NIS2, incluindo implementação de medidas de segurança obrigatórias.' },
+  { icon: Lock,     title: 'Gestão de Segurança',            description: 'Monitorização contínua de sistemas, deteção de ameaças em tempo real e resposta rápida a incidentes de segurança.' },
+  { icon: Users,    title: 'Formação & Sensibilização',      description: 'Programas de formação para equipas, promovendo boas práticas de segurança e consciencialização sobre ciberameaças.' },
+  { icon: CloudCog, title: 'Gestão de Documentos',           description: 'Plataforma segura para gestão, armazenamento e partilha de documentação sensível com controlo total de acessos.' },
+]
+
+const ICON_MAP = { Shield, Lock, Search, FileCheck, Users, CloudCog }
 
 export function Services() {
-  const services = [
-    { icon: Shield,   title: 'Avaliação de Maturidade de TI',  description: 'Análise completa do nível de maturidade da sua infraestrutura tecnológica, identificando pontos fortes e áreas de melhoria.' },
-    { icon: Search,   title: 'PenTest & Testes de Intrusão',   description: 'Testes de penetração avançados para identificar vulnerabilidades antes que sejam exploradas por agentes maliciosos.' },
-    { icon: FileCheck,title: 'Compliance NIS2',                description: 'Consultoria especializada para garantir conformidade com a Diretiva NIS2, incluindo implementação de medidas de segurança obrigatórias.' },
-    { icon: Lock,     title: 'Gestão de Segurança',            description: 'Monitorização contínua de sistemas, deteção de ameaças em tempo real e resposta rápida a incidentes de segurança.' },
-    { icon: Users,    title: 'Formação & Sensibilização',      description: 'Programas de formação para equipas, promovendo boas práticas de segurança e consciencialização sobre ciberameaças.' },
-    { icon: CloudCog, title: 'Gestão de Documentos',           description: 'Plataforma segura para gestão, armazenamento e partilha de documentação sensível com controlo total de acessos.' },
-  ]
+  const [servicesData, setServicesData] = useState(null)
+
+  useEffect(() => {
+    api.get('/empresas/public')
+      .then(r => {
+        const raw = r.data?.site_config
+        if (raw?.services?.length) {
+          setServicesData(raw.services.map(s => ({
+            ...s,
+            icon: ICON_MAP[s.icon] || Shield
+          })))
+        }
+      })
+      .catch(() => {})
+  }, [])
+
+  const services = servicesData ?? FALLBACK_SERVICES
 
   return (
-    <section id="services" className="py-5 kb-bg-muted">
+    <section id="services" className="py-5 kb-bg-light">
     <div className="container py-4">
     <div className="text-center mb-5">
     <h2 className="kb-section-title">Os Nossos <span className="kb-brand">Serviços</span></h2>

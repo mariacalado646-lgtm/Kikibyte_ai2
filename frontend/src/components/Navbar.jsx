@@ -16,16 +16,12 @@ export function Navbar() {
     roleId === 2 ? 'gestor' :
     roleId === 3 ? 'client' : null
 
-  // fallback: try to read role_id from localStorage 'user' if context has none
-  const localUser = (() => { try { return JSON.parse(localStorage.getItem('user')) } catch { return null } })()
-  const localRoleId = Number(localUser?.role_id)
-  const effectiveType = userType || (localRoleId === 1 ? 'admin' : localRoleId === 2 ? 'gestor' : null)
-
-  const username = user?.email || user?.nome || localUser?.nome || localUser?.email || ''
+  const username = user?.nome || user?.email || ''
 
   const handleUserClick = () => {
-    if (effectiveType === 'admin') navigate('/admin')
-    else if (effectiveType === 'gestor') navigate('/gestor')
+    if (userType === 'admin') navigate('/admin')
+    else if (userType === 'gestor') navigate('/gestor')
+    else if (userType === 'client') navigate('/cliente')
     else navigate('/')
   }
 

@@ -25,7 +25,7 @@ export function News() {
   }, [])
 
   return (
-    <section id="news" className="py-5 kb-bg-muted">
+    <section id="news" className="py-5 kb-bg-light">
     <div className="container py-4">
     <div className="text-center mb-5">
     <h2 className="kb-section-title">Notícias & <span className="kb-brand">Artigos Técnicos</span></h2>

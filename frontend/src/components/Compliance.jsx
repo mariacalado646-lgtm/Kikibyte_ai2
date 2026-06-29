@@ -1,15 +1,26 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { CheckCircle2, Shield, FileText, Lock, Info, Building2, AlertTriangle, Users, Calendar } from 'lucide-react'
+import { api } from '../services/api'
 
 export function Compliance() {
   const [isNIS2DialogOpen, setIsNIS2DialogOpen] = useState(false)
+  const [complianceData, setComplianceData] = useState(null)
 
-  const nis2Features = [
+  useEffect(() => {
+    api.get('/empresas/public')
+      .then(r => {
+        const cfg = r.data?.site_config
+        if (cfg?.compliance) setComplianceData(cfg.compliance)
+      })
+      .catch(() => {})
+  }, [])
+
+  const nis2Features = complianceData?.features ?? [
     'Gestão de riscos de cibersegurança', 'Tratamento de incidentes',
     'Continuidade das operações e gestão de crises', 'Segurança da cadeia de abastecimento',
     'Criptografia e segurança de comunicações', 'Controlo de acesso e gestão de ativos'
   ]
-  const cncsGuidelines = [
+  const cncsGuidelines = complianceData?.guidelines ?? [
     'Implementação de políticas de segurança robustas', 'Monitorização contínua de sistemas críticos',
     'Resposta rápida a incidentes de segurança', 'Formação contínua de equipas',
     'Auditoria e avaliação regular de riscos', 'Conformidade com standards nacionais'

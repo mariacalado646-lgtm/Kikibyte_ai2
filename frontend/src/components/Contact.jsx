@@ -119,7 +119,7 @@ export function Contact() {
           {getFileIcon()}
           <div className="overflow-hidden">
           <p className="small fw-medium mb-0 text-truncate">{file.name}</p>
-          <p className="x-small text-muted mb-0">{formatFileSize(file.size)}</p>
+          <p className="small text-muted mb-0">{formatFileSize(file.size)}</p>
           </div>
           </div>
           <button type="button" onClick={() => removeFile(i)} className="btn btn-sm btn-link text-danger p-1 ms-2">
