@@ -51,13 +51,11 @@ export const aprovar = async (req, res) => {
         if (!pedido) return res.status(404).json({ error: 'Pedido não encontrado' })
         if (pedido.status !== 'pending') return res.status(400).json({ error: 'Pedido já foi processado' })
 
-        // Check for duplicate email/NIF
         const emailExists = await Utilizador.findOne({ where: { email: pedido.email } })
         if (emailExists) {
             return res.status(409).json({ error: 'Já existe um utilizador com este email' })
         }
 
-        // 1. Create the client record
         const cliente = await Cliente.create({
             nome: pedido.nome_empresa,
             email: pedido.email,
@@ -68,8 +66,7 @@ export const aprovar = async (req, res) => {
             updated_at: new Date()
         })
 
-        // 2. Create the user account (role_id=3 for client)
-        const tempPassword = Math.random().toString(36).slice(-8) // random 8-char password
+        const tempPassword = Math.random().toString(36).slice(-8)
         const password_hash = await bcrypt.hash(tempPassword, 10)
 
         const utilizador = await Utilizador.create({
@@ -83,7 +80,6 @@ export const aprovar = async (req, res) => {
             updated_at: new Date()
         })
 
-        // 3. Update pedido status
         await pedido.update({
             status: 'approved',
             tratado_por: req.user?.id || null,
@@ -94,7 +90,7 @@ export const aprovar = async (req, res) => {
             success: true,
             cliente,
             utilizador,
-            tempPassword, // should be sent via email in production
+            tempPassword,
             message: `Cliente e conta criados com sucesso. Password temporária: ${tempPassword}`
         })
     } catch (err) {

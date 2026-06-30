@@ -3,7 +3,7 @@ import { Plus, Search, Edit2, Trash2, Mail, Phone } from 'lucide-react'
 import { adminClienteService } from '../../services/adminservice'
 import { utilizadorService } from '../../services/adminservice'
 
-const INITIAL_FORM = { nome: '', email: '', telefone: '', nif: '', setor: '', morada: '' }
+const INITIAL_FORM = { nome: '', email: '', telefone: '', nif: '', setor: '', morada: '', password: '' }
 
 export function ClientsManagement() {
   const [clients, setClients]             = useState([])
@@ -61,6 +61,7 @@ export function ClientsManagement() {
       nif:      client.nif || '',
       setor:    client.setor || '',
       morada:   client.morada || '',
+      password: '',
     })
     setIsDialogOpen(true)
   }
@@ -244,6 +245,17 @@ export function ClientsManagement() {
       className="form-control kb-input"
       />
       </div>
+      {!editingClient && (
+      <div className="col-md-6">
+      <label className="form-label small fw-medium">Password (para login do cliente)</label>
+      <input
+      type="password" value={formData.password}
+      onChange={e => setFormData({ ...formData, password: e.target.value })}
+      className="form-control kb-input"
+      placeholder="Deixar vazio para não criar conta"
+      />
+      </div>
+      )}
     </div>
 
     </div>

@@ -5,7 +5,6 @@ import { Documento } from '../models/Documento.js'
 import { Pedido } from '../models/Pedido.js'
 import { Op } from 'sequelize'
 
-// GET /api/admin/stats — Dashboard info genérica
 export const stats = async (req, res) => {
     try {
         const [totalUtilizadores, totalClientes, totalGestores, totalRelatorios, totalDocumentos, totalPedidos] = await Promise.all([
@@ -55,7 +54,6 @@ export const stats = async (req, res) => {
     }
 }
 
-// POST /api/admin/importar-clientes — Bulk import de clientes via Excel
 export const importarClientes = async (req, res) => {
     try {
         const { clientes } = req.body
@@ -71,11 +69,6 @@ export const importarClientes = async (req, res) => {
                     resultados.erros.push({ linha: item, erro: 'Nome é obrigatório' })
                     continue
                 }
-
-                // Verifica se já existe pelo email ou nif
-                const whereClause = {}
-                if (item.email) whereClause.email = item.email
-                if (item.nif) whereClause.nif = item.nif
 
                 if (item.email || item.nif) {
                     const existing = await Cliente.findOne({
@@ -99,16 +92,18 @@ export const importarClientes = async (req, res) => {
                     morada: item.morada || null,
                     ativo: true,
                     created_at: new Date(),
-                    updated_at: new Date(),
+                    updated_at: new Date()
                 })
-
                 resultados.criados++
             } catch (err) {
                 resultados.erros.push({ linha: item, erro: err.message })
             }
         }
 
-        res.json(resultados)
+        res.json({
+            message: `${resultados.criados} clientes importados com sucesso, ${resultados.erros.length} erros`,
+            ...resultados
+        })
     } catch (err) {
         console.error('Erro ao importar clientes:', err)
         res.status(500).json({ error: 'Erro ao importar clientes' })

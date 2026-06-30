@@ -2,7 +2,6 @@ import bcrypt from 'bcryptjs'
 import { Utilizador } from '../models/Utilizador.js'
 import { Op } from 'sequelize'
 
-// GET /api/utilizadores/:id — obter um utilizador pelo ID
 export const obter = async (req, res) => {
     try {
         const user = await Utilizador.findByPk(req.params.id, {
@@ -16,7 +15,6 @@ export const obter = async (req, res) => {
     }
 }
 
-// GET /api/utilizadores?role_id=2&search=...
 export const listar = async (req, res) => {
     try {
         const { role_id, search, ativo } = req.query
@@ -25,7 +23,7 @@ export const listar = async (req, res) => {
         if (ativo !== undefined) where.ativo = ativo === 'true'
         if (search) {
             where[Op.or] = [
-                { nome:  { [Op.iLike]: `%${search}%` } },
+                { nome: { [Op.iLike]: `%${search}%` } },
                 { email: { [Op.iLike]: `%${search}%` } }
             ]
         }
@@ -42,11 +40,9 @@ export const listar = async (req, res) => {
     }
 }
 
-// POST /api/utilizadores  { nome, email, password, role_id, empresa_id?, cliente_id? }
 export const criar = async (req, res) => {
     try {
         const { nome, email, password, role_id, empresa_id, cliente_id } = req.body
-
         if (!nome || !email || !password || !role_id) {
             return res.status(400).json({ error: 'Nome, email, password e role_id são obrigatórios' })
         }
@@ -61,7 +57,7 @@ export const criar = async (req, res) => {
             email,
             password_hash,
             role_id,
-            empresa_id: empresa_id || null,
+            empresa_id: empresa_id || 1,
             cliente_id: cliente_id || null,
             ativo: true,
             created_at: new Date(),
@@ -76,7 +72,6 @@ export const criar = async (req, res) => {
     }
 }
 
-// PUT /api/utilizadores/:id  { nome?, email?, ativo?, password? (opcional, redefine) }
 export const atualizar = async (req, res) => {
     try {
         const user = await Utilizador.findByPk(req.params.id)
@@ -90,7 +85,7 @@ export const atualizar = async (req, res) => {
         }
 
         const updates = { updated_at: new Date() }
-        if (nome !== undefined)  updates.nome = nome
+        if (nome !== undefined) updates.nome = nome
         if (email !== undefined) updates.email = email
         if (ativo !== undefined) updates.ativo = ativo
         if (password) updates.password_hash = await bcrypt.hash(password, 10)
@@ -104,7 +99,6 @@ export const atualizar = async (req, res) => {
     }
 }
 
-// DELETE /api/utilizadores/:id  → revoga o acesso (soft delete, não apaga o registo)
 export const remover = async (req, res) => {
     try {
         const user = await Utilizador.findByPk(req.params.id)

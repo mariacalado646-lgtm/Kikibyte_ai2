@@ -18,7 +18,6 @@ export const listarPorCliente = async (req, res) => {
             include: [{ model: Cliente, as: 'cliente', attributes: ['id_cliente', 'nome'] }]
         })
 
-        // Se não existirem permissões, devolver defaults (tudo ativo)
         if (permissoes.length === 0) {
             const defaults = FUNCIONALIDADES.map(f => ({
                 funcionalidade: f,
@@ -28,7 +27,6 @@ export const listarPorCliente = async (req, res) => {
             return res.json(defaults)
         }
 
-        // Garantir que todas as funcionalidades estão representadas
         const existing = new Set(permissoes.map(p => p.funcionalidade))
         const all = FUNCIONALIDADES.map(f => {
             if (existing.has(f)) return permissoes.find(p => p.funcionalidade === f)
@@ -87,7 +85,6 @@ export const obterPermissoesParaCliente = async (req, res) => {
         const permissoes = await PermissaoCliente.findAll({ where: { cliente_id: clienteId } })
         const active = new Set(permissoes.filter(p => p.ativo).map(p => p.funcionalidade))
 
-        // Se não houver permissões configuradas, todas ativas
         if (permissoes.length === 0) {
             return res.json({ permissoes: FUNCIONALIDADES.map(f => ({ funcionalidade: f, ativo: true })) })
         }
