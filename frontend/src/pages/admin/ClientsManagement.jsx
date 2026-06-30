@@ -3,7 +3,7 @@ import { Plus, Search, Edit2, Trash2, Mail, Phone } from 'lucide-react'
 import { adminClienteService } from '../../services/adminservice'
 import { utilizadorService } from '../../services/adminservice'
 
-const INITIAL_FORM = { nome: '', email: '', telefone: '', nif: '', setor: '', morada: '', responsavel_seguranca: '', contacto_permanente: '' }
+const INITIAL_FORM = { nome: '', email: '', telefone: '', nif: '', setor: '', morada: '' }
 
 export function ClientsManagement() {
   const [clients, setClients]             = useState([])
@@ -61,8 +61,6 @@ export function ClientsManagement() {
       nif:      client.nif || '',
       setor:    client.setor || '',
       morada:   client.morada || '',
-      responsavel_seguranca: client.responsavel_seguranca || '',
-      contacto_permanente: client.contacto_permanente || '',
     })
     setIsDialogOpen(true)
   }
@@ -122,8 +120,6 @@ export function ClientsManagement() {
     <tr>
     <th className="small fw-medium">Empresa</th>
     <th className="small fw-medium">Setor</th>
-    <th className="small fw-medium">Resp. Segurança</th>
-    <th className="small fw-medium">Contacto Perm.</th>
     <th className="small fw-medium">Email</th>
     <th className="small fw-medium">Telefone</th>
     <th className="small fw-medium">Estado</th>
@@ -132,7 +128,7 @@ export function ClientsManagement() {
     </thead>
     <tbody>
     {loading ? (
-      <tr><td colSpan={8} className="text-center py-5"><div className="spinner-border spinner-border-sm text-primary" role="status"><span className="visually-hidden">A carregar...</span></div></td></tr>
+      <tr><td colSpan={6} className="text-center py-5"><div className="spinner-border spinner-border-sm text-primary" role="status"><span className="visually-hidden">A carregar...</span></div></td></tr>
     ) : (filteredClients.map(client => (
       <tr key={client.id_cliente}>
       <td>
@@ -140,8 +136,6 @@ export function ClientsManagement() {
       <div className="small text-muted">NIF: {client.nif}</div>
       </td>
       <td>{client.setor || '-'}</td>
-      <td style={{ fontSize: "0.85rem" }}>{client.responsavel_seguranca || '-'}</td>
-      <td style={{ fontSize: "0.85rem" }}>{client.contacto_permanente || '-'}</td>
       <td>
       <a href={`mailto:${client.email}`} className="kb-brand text-decoration-none d-inline-flex align-items-center gap-1">
       <Mail size={13} /> {client.email}
@@ -248,24 +242,6 @@ export function ClientsManagement() {
       type="text" value={formData.morada}
       onChange={e => setFormData({ ...formData, morada: e.target.value })}
       className="form-control kb-input"
-      />
-      </div>
-      <div className="col-md-6">
-      <label className="form-label small fw-medium">Responsável de Segurança</label>
-      <input
-      type="text" value={formData.responsavel_seguranca}
-      onChange={e => setFormData({ ...formData, responsavel_seguranca: e.target.value })}
-      className="form-control kb-input"
-      placeholder="Nome do responsável"
-      />
-      </div>
-      <div className="col-md-6">
-      <label className="form-label small fw-medium">Contacto Permanente</label>
-      <input
-      type="text" value={formData.contacto_permanente}
-      onChange={e => setFormData({ ...formData, contacto_permanente: e.target.value })}
-      className="form-control kb-input"
-      placeholder="Email ou telefone do contacto"
       />
       </div>
     </div>
