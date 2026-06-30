@@ -41,14 +41,13 @@ export const obter = async (req, res) => {
 
 export const criar = async (req, res) => {
     try {
-        const { nome, nif, email, telefone, morada, setor, empresa_id, estado_conformidade, responsavel_seguranca, contacto_permanente } = req.body
+        const { nome, nif, email, telefone, morada, setor, empresa_id, estado_conformidade } = req.body
+        
         if (!nome) return res.status(400).json({ error: 'Nome é obrigatório' })
 
         const cliente = await Cliente.create({
             nome, nif, email, telefone, morada, setor,
             estado_conformidade: estado_conformidade || null,
-            responsavel_seguranca: responsavel_seguranca || null,
-            contacto_permanente: contacto_permanente || null,
             empresa_id: empresa_id || null,
             ativo: true,
             created_at: new Date(),

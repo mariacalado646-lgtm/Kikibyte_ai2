@@ -15,6 +15,4 @@ export const Cliente = sequelize.define('Cliente', {
     created_at:           { type: DataTypes.DATE },
     updated_at:           { type: DataTypes.DATE },
     estado_conformidade:  { type: DataTypes.STRING },
-    responsavel_seguranca:{ type: DataTypes.STRING },
-    contacto_permanente:  { type: DataTypes.STRING }
 }, { tableName: 'cliente', timestamps: false })

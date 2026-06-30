@@ -1,7 +1,9 @@
+import dotenv from 'dotenv'
+dotenv.config()
+
 import express from 'express'
 import cors from 'cors'
 import bcrypt from 'bcryptjs'
-import dotenv from 'dotenv'
 import { sequelize } from './config/database.js'
 import contactRoutes from './routes/contactRoutes.js'
 import artigoRoutes from './routes/artigoRoutes.js'
@@ -67,7 +69,7 @@ app.use('/api/artigos',    artigoRoutes)
 app.use('/api/auth',       authRoutes)
 app.use('/api/clientes',   clienteRoutes)
 app.use('/api/documentos', documentoRoutes)
-app.use('/api/documentos', documentoMensagemRoutes)  // /api/documentos/:documento_id/mensagens
+app.use('/api/documentos/:documentoId/mensagens', documentoMensagemRoutes)
 app.use('/api/pedidos',    pedidoRoutes)
 app.use('/api/mensagens',  mensagemRoutes)
 app.use('/api/notificacoes', notificacaoRoutes)

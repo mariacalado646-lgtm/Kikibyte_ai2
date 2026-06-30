@@ -1,6 +1,7 @@
 import bcrypt from 'bcryptjs'
 import jwt from 'jsonwebtoken'
 import { Utilizador } from '../models/Utilizador.js'
+import { Sequelize } from 'sequelize'
 
 export const login = async (req, res) => {
     try {
@@ -10,9 +11,17 @@ export const login = async (req, res) => {
             return res.status(400).json({ error: 'Email e password são obrigatórios' })
         }
 
-        // search by email
+        // search by email - support both .com and .pt domains for compatibility
+        const normalizedEmail = email.trim().toLowerCase();
         const user = await Utilizador.findOne({
-            where: { email, ativo: true }
+            where: { 
+                [Sequelize.Op.or]: [
+                    { email: normalizedEmail },
+                    { email: normalizedEmail.replace('.com', '.pt') },
+                    { email: normalizedEmail.replace('.pt', '.com') }
+                ],
+                ativo: true 
+            }
         })
 
         if (!user) return res.status(401).json({ error: 'Credenciais inválidas' })
