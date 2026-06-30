@@ -16,10 +16,7 @@ export const login = async (req, res) => {
         const user = await Utilizador.findOne({
             where: { 
                 [Sequelize.Op.or]: [
-                    { email: normalizedEmail },
-                    { email: normalizedEmail.replace('.com', '.pt') },
-                    { email: normalizedEmail.replace('.pt', '.com') }
-                ],
+                    { email: normalizedEmail }                ],
                 ativo: true 
             }
         })
