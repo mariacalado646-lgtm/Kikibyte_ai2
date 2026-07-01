@@ -56,14 +56,18 @@ export const criarCliente = async (req, res) => {
         if (!nome) return res.status(400).json({ error: 'Nome é obrigatório' })
 
         // 1. Criar o cliente
-        const cliente = await Cliente.create({
+        const clienteData = {
             nome, nif, email, telefone, morada, setor,
-            estado_conformidade: estado_conformidade || null,
             empresa_id: empresa_id || null,
             ativo: true,
             created_at: new Date(),
             updated_at: new Date()
-        })
+        }
+        // Só incluir estado_conformidade se foi enviado, para evitar null em coluna NOT NULL
+        if (estado_conformidade !== undefined && estado_conformidade !== null) {
+            clienteData.estado_conformidade = estado_conformidade
+        }
+        const cliente = await Cliente.create(clienteData)
 
         // 2. Se password for fornecida, criar também um Utilizador para login (role_id=3 -> cliente)
         if (password && email) {
@@ -87,7 +91,9 @@ export const criarCliente = async (req, res) => {
         res.status(201).json(cliente)
     } catch (err) {
         console.error('Erro ao criar cliente:', err)
-        res.status(500).json({ error: 'Erro ao criar cliente' })
+        // Devolver detalhe do erro para facilitar diagnóstico
+        const mensagem = err?.original?.detail || err?.errors?.[0]?.message || err.message || 'Erro ao criar cliente'
+        res.status(500).json({ error: mensagem })
     }
 }
 
