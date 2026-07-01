@@ -9,10 +9,13 @@ import {
   FileText,
   Shield,
   Archive,
+  ClipboardList,
   Plus,
   Download,
   Trash2,
   CheckCircle,
+  XCircle,
+  Clock,
 } from "lucide-react";
 import { toast } from "sonner";
 import { api } from "../../services/api";
@@ -45,6 +48,10 @@ export function GestorClienteDetalhes() {
   const [showPenTestForm, setShowPenTestForm] = useState(false);
   const [novoPenTest, setNovoPenTest] = useState({ titulo: "", tipo: "", descricao: "", resultado: "", ficheiro: null });
 
+  // Pedidos
+  const [pedidos, setPedidos] = useState([]);
+  const [processingPedido, setProcessingPedido] = useState(null);
+
   // Outros
   const [notas, setNotas] = useState("");
 
@@ -65,6 +72,7 @@ export function GestorClienteDetalhes() {
         loadIncidentes();
         loadDocumentos();
         loadPenTests();
+        loadPedidos();
       }
     } catch (err) {
       console.error("Erro ao carregar cliente:", err);
@@ -242,6 +250,29 @@ export function GestorClienteDetalhes() {
     }
   };
 
+  // ── Pedidos ──
+  const loadPedidos = async () => {
+    try {
+      const res = await api.get("/pedidos", { params: { cliente_id: id } });
+      setPedidos(res.data || []);
+    } catch (err) {
+      console.error("Erro ao carregar pedidos:", err);
+    }
+  };
+
+  const handlePedidoStatus = async (pedidoId, novoEstado) => {
+    setProcessingPedido(pedidoId);
+    try {
+      await api.put(`/pedidos/${pedidoId}`, { estado: novoEstado });
+      toast.success(`Pedido ${novoEstado === 'em_andamento' ? 'em andamento' : novoEstado} com sucesso!`);
+      loadPedidos();
+    } catch (err) {
+      toast.error("Erro ao atualizar pedido");
+    } finally {
+      setProcessingPedido(null);
+    }
+  };
+
   // ── Notas ──
   const handleSaveNotas = async () => {
     try {
@@ -265,6 +296,7 @@ export function GestorClienteDetalhes() {
     { id: "risco", label: "Avaliação de Risco", icon: AlertTriangle },
     { id: "ativos", label: `Ativos (${ativos.length})`, icon: Server },
     { id: "incidentes", label: `Incidentes (${incidentes.length})`, icon: AlertOctagon },
+    { id: "pedidos", label: `Pedidos (${pedidos.length})`, icon: ClipboardList },
     { id: "documentacao", label: `Docs (${documentos.length})`, icon: FileText },
     { id: "pentests", label: `Pen Tests (${penTests.length})`, icon: Shield },
     { id: "outros", label: "Outros", icon: Archive },
@@ -522,6 +554,104 @@ export function GestorClienteDetalhes() {
               <div className="text-center text-muted" style={{ padding: "3rem 0" }}>
                 <AlertOctagon className="mx-auto mb-4 opacity-50" style={{ width: "3rem", height: "3rem" }} />
                 <p style={{ margin: 0 }}>Nenhum incidente registado</p>
+              </div>
+            )}
+          </div>
+        )}
+
+        {activeTab === "pedidos" && (
+          <div className="kb-space-y-4">
+            <div className="d-flex align-items-center justify-content-between">
+              <h2 className="h5 fw-semibold text-body" style={{ margin: 0 }}>Pedidos do Cliente</h2>
+            </div>
+
+            {pedidos.length > 0 ? (
+              <div className="kb-space-y-2">
+                {pedidos.map(pedido => {
+                  const estadoBadge = {
+                    pendente: { class: "bg-warning text-dark", label: "Pendente" },
+                    em_andamento: { class: "bg-primary text-white", label: "Em Andamento" },
+                    resolvido: { class: "bg-success text-white", label: "Resolvido" },
+                    fechado: { class: "bg-secondary text-white", label: "Fechado" },
+                    cancelado: { class: "bg-danger text-white", label: "Cancelado" },
+                  };
+                  const badge = estadoBadge[pedido.estado] || estadoBadge.pendente;
+                  return (
+                    <div key={pedido.id_pedido} className="border rounded" style={{ padding: "1rem" }}>
+                      <div className="d-flex align-items-start justify-content-between">
+                        <div style={{ flex: 1 }}>
+                          <div className="d-flex align-items-center" style={{ gap: "0.75rem", marginBottom: "0.5rem" }}>
+                            <ClipboardList size={18} className="kb-brand" />
+                            <strong>{pedido.titulo}</strong>
+                            <span className={`badge ${badge.class}`}>{badge.label}</span>
+                            {pedido.prioridade && (
+                              <span className={`badge ${pedido.prioridade === 'urgente' || pedido.prioridade === 'alta' ? 'bg-danger' : pedido.prioridade === 'normal' ? 'bg-info' : 'bg-secondary'}`}>
+                                {pedido.prioridade}
+                              </span>
+                            )}
+                          </div>
+                          {pedido.descricao && (
+                            <p className="small text-muted" style={{ margin: "0.25rem 0", whiteSpace: "pre-wrap" }}>{pedido.descricao}</p>
+                          )}
+                          <div className="d-flex align-items-center small text-muted" style={{ gap: "1rem", marginTop: "0.5rem" }}>
+                            <span className="d-flex align-items-center" style={{ gap: "0.25rem" }}>
+                              <Clock size={12} />
+                              {pedido.data_criacao ? new Date(pedido.data_criacao).toLocaleDateString("pt-PT") : "N/A"}
+                            </span>
+                            {pedido.data_fecho && (
+                              <span className="d-flex align-items-center" style={{ gap: "0.25rem" }}>
+                                <CheckCircle size={12} />
+                                Fecho: {new Date(pedido.data_fecho).toLocaleDateString("pt-PT")}
+                              </span>
+                            )}
+                          </div>
+                        </div>
+
+                        {pedido.estado === "pendente" && (
+                          <div className="d-flex" style={{ gap: "0.5rem", marginLeft: "1rem" }}>
+                            <button
+                              onClick={() => handlePedidoStatus(pedido.id_pedido, "em_andamento")}
+                              disabled={processingPedido === pedido.id_pedido}
+                              className="btn btn-sm btn-primary d-flex align-items-center"
+                              style={{ gap: "0.25rem" }}
+                            >
+                              <CheckCircle size={14} />
+                              {processingPedido === pedido.id_pedido ? "..." : "Aceitar"}
+                            </button>
+                            <button
+                              onClick={() => handlePedidoStatus(pedido.id_pedido, "cancelado")}
+                              disabled={processingPedido === pedido.id_pedido}
+                              className="btn btn-sm btn-outline-danger d-flex align-items-center"
+                              style={{ gap: "0.25rem" }}
+                            >
+                              <XCircle size={14} />
+                              Rejeitar
+                            </button>
+                          </div>
+                        )}
+
+                        {pedido.estado === "em_andamento" && (
+                          <div style={{ marginLeft: "1rem" }}>
+                            <button
+                              onClick={() => handlePedidoStatus(pedido.id_pedido, "resolvido")}
+                              disabled={processingPedido === pedido.id_pedido}
+                              className="btn btn-sm btn-outline-success d-flex align-items-center"
+                              style={{ gap: "0.25rem" }}
+                            >
+                              <CheckCircle size={14} />
+                              {processingPedido === pedido.id_pedido ? "..." : "Concluir"}
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            ) : (
+              <div className="text-center text-muted" style={{ padding: "3rem 0" }}>
+                <ClipboardList className="mx-auto mb-4 opacity-50" style={{ width: "3rem", height: "3rem" }} />
+                <p style={{ margin: 0 }}>Nenhum pedido registado por este cliente</p>
               </div>
             )}
           </div>
