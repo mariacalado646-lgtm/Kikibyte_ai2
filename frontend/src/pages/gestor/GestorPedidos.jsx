@@ -5,11 +5,12 @@ import { toast } from "sonner";
 import { api } from "../../services/api";
 
 const ESTADO_BADGE = {
-  pendente:     { class: "bg-warning text-dark", label: "Pendente" },
-  em_andamento: { class: "bg-primary text-white", label: "Em Andamento" },
-  resolvido:    { class: "bg-success text-white", label: "Resolvido" },
-  fechado:      { class: "bg-secondary text-white", label: "Fechado" },
-  cancelado:    { class: "bg-danger text-white", label: "Cancelado" },
+  pendente:      { class: "bg-warning text-dark", label: "Pendente" },
+  em_analise:    { class: "bg-primary text-white", label: "Em Análise" },
+  em_execucao:   { class: "bg-info text-white", label: "Em Execução" },
+  aguarda_cliente: { class: "bg-secondary text-white", label: "Aguarda Cliente" },
+  concluido:     { class: "bg-success text-white", label: "Concluído" },
+  cancelado:     { class: "bg-danger text-white", label: "Cancelado" },
 };
 
 export function GestorPedidos() {
@@ -192,8 +193,8 @@ export function GestorPedidos() {
           {[
             { id: "all", label: "Todos", icon: ClipboardList },
             { id: "pendente", label: "Pendentes", icon: Clock },
-            { id: "em_andamento", label: "Em Andamento", icon: CheckCircle },
-            { id: "resolvido", label: "Resolvidos", icon: CheckCircle },
+            { id: "em_analise", label: "Em Análise", icon: CheckCircle },
+            { id: "concluido", label: "Concluídos", icon: CheckCircle },
             { id: "cancelado", label: "Cancelados", icon: XCircle },
           ].map((f) => {
             const Icon = f.icon;
@@ -323,7 +324,7 @@ export function GestorPedidos() {
                     <div className="d-flex" style={{ gap: "0.5rem", marginLeft: "1rem", flexShrink: 0 }}>
                       {pedido.estado === "pendente" && (
                         <>
-                          <button onClick={() => handlePedidoStatus(pedido.id_pedido, "em_andamento")}
+                          <button onClick={() => handlePedidoStatus(pedido.id_pedido, "em_analise")}
                             disabled={processing === pedido.id_pedido}
                             className="btn btn-sm btn-primary d-flex align-items-center" style={{ gap: "0.25rem" }}>
                             <CheckCircle size={14} /> {processing === pedido.id_pedido ? "..." : "Aceitar"}
@@ -335,8 +336,8 @@ export function GestorPedidos() {
                           </button>
                         </>
                       )}
-                      {pedido.estado === "em_andamento" && (
-                        <button onClick={() => handlePedidoStatus(pedido.id_pedido, "resolvido")}
+                      {pedido.estado === "em_analise" && (
+                        <button onClick={() => handlePedidoStatus(pedido.id_pedido, "concluido")}
                           disabled={processing === pedido.id_pedido}
                           className="btn btn-sm btn-outline-success d-flex align-items-center" style={{ gap: "0.25rem" }}>
                           <CheckCircle size={14} /> {processing === pedido.id_pedido ? "..." : "Concluir"}

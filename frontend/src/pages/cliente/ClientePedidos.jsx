@@ -5,11 +5,12 @@ import { api } from "../../services/api";
 import { useAuth } from "../../context/AuthContext";
 
 const ESTADO_BADGE = {
-  pendente:  { label: "Pendente",  class: "bg-warning text-dark" },
-  em_andamento: { label: "Em Andamento", class: "bg-primary text-white" },
-  resolvido: { label: "Resolvido", class: "bg-success text-white" },
-  fechado:   { label: "Fechado",   class: "bg-secondary text-white" },
-  cancelado: { label: "Cancelado", class: "bg-danger text-white" },
+  pendente:      { label: "Pendente",      class: "bg-warning text-dark" },
+  em_analise:    { label: "Em Análise",    class: "bg-primary text-white" },
+  em_execucao:   { label: "Em Execução",   class: "bg-info text-white" },
+  aguarda_cliente: { label: "Aguarda Cliente", class: "bg-secondary text-white" },
+  concluido:     { label: "Concluído",     class: "bg-success text-white" },
+  cancelado:     { label: "Cancelado",     class: "bg-danger text-white" },
 };
 
 export function ClientePedidos() {

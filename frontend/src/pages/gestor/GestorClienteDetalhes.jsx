@@ -264,7 +264,7 @@ export function GestorClienteDetalhes() {
     setProcessingPedido(pedidoId);
     try {
       await api.put(`/pedidos/${pedidoId}`, { estado: novoEstado });
-      toast.success(`Pedido ${novoEstado === 'em_andamento' ? 'em andamento' : novoEstado} com sucesso!`);
+      toast.success(`Pedido ${novoEstado === 'em_analise' ? 'em análise' : novoEstado} com sucesso!`);
       loadPedidos();
     } catch (err) {
       toast.error("Erro ao atualizar pedido");
@@ -570,9 +570,10 @@ export function GestorClienteDetalhes() {
                 {pedidos.map(pedido => {
                   const estadoBadge = {
                     pendente: { class: "bg-warning text-dark", label: "Pendente" },
-                    em_andamento: { class: "bg-primary text-white", label: "Em Andamento" },
-                    resolvido: { class: "bg-success text-white", label: "Resolvido" },
-                    fechado: { class: "bg-secondary text-white", label: "Fechado" },
+                    em_analise: { class: "bg-primary text-white", label: "Em Análise" },
+                    em_execucao: { class: "bg-info text-white", label: "Em Execução" },
+                    aguarda_cliente: { class: "bg-secondary text-white", label: "Aguarda Cliente" },
+                    concluido: { class: "bg-success text-white", label: "Concluído" },
                     cancelado: { class: "bg-danger text-white", label: "Cancelado" },
                   };
                   const badge = estadoBadge[pedido.estado] || estadoBadge.pendente;
@@ -610,7 +611,7 @@ export function GestorClienteDetalhes() {
                         {pedido.estado === "pendente" && (
                           <div className="d-flex" style={{ gap: "0.5rem", marginLeft: "1rem" }}>
                             <button
-                              onClick={() => handlePedidoStatus(pedido.id_pedido, "em_andamento")}
+                              onClick={() => handlePedidoStatus(pedido.id_pedido, "em_analise")}
                               disabled={processingPedido === pedido.id_pedido}
                               className="btn btn-sm btn-primary d-flex align-items-center"
                               style={{ gap: "0.25rem" }}
@@ -630,10 +631,10 @@ export function GestorClienteDetalhes() {
                           </div>
                         )}
 
-                        {pedido.estado === "em_andamento" && (
+                        {pedido.estado === "em_analise" && (
                           <div style={{ marginLeft: "1rem" }}>
                             <button
-                              onClick={() => handlePedidoStatus(pedido.id_pedido, "resolvido")}
+                              onClick={() => handlePedidoStatus(pedido.id_pedido, "concluido")}
                               disabled={processingPedido === pedido.id_pedido}
                               className="btn btn-sm btn-outline-success d-flex align-items-center"
                               style={{ gap: "0.25rem" }}
