@@ -25,6 +25,7 @@ export function AdminLogin() {
     email: "",
     phone: "",
     nif: "",
+    password: "",
   });
 
   const handleSubmit = async (e) => {
@@ -61,10 +62,11 @@ export function AdminLogin() {
         email: newClientData.email,
         telefone: newClientData.phone,
         nif: newClientData.nif,
+        password: newClientData.password,
       });
 
       toast.success(
-        "Pedido enviado com sucesso! Entraremos em contacto em breve.",
+        "Pedido enviado com sucesso! Assim que for aprovado, poderá fazer login com a sua password.",
       );
       setNewClientData({
         name: "",
@@ -72,6 +74,7 @@ export function AdminLogin() {
         email: "",
         phone: "",
         nif: "",
+        password: "",
       });
       setClientMode("existing");
     } catch (err) {
@@ -303,8 +306,7 @@ export function AdminLogin() {
                 Pedido de Acesso
               </h3>
               <p className="small text-muted">
-                Preencha o formulário abaixo. Entraremos em contacto em breve
-                para criar as suas credenciais.
+                Preencha o formulário abaixo para solicitar acesso. Após aprovação, poderá fazer login com a sua password.
               </p>
             </div>
 
@@ -387,6 +389,23 @@ export function AdminLogin() {
                 }
                 className="contact-input"
                 placeholder="501234567"
+              />
+            </div>
+
+            <div>
+              <label className="d-block small fw-medium text-body" style={{ marginBottom: '0.5rem' }}>
+                Palavra-passe *
+              </label>
+              <input
+                type="password"
+                required
+                minLength={6}
+                value={newClientData.password}
+                onChange={(e) =>
+                  setNewClientData({ ...newClientData, password: e.target.value })
+                }
+                className="contact-input"
+                placeholder="Mínimo 6 caracteres"
               />
             </div>
 

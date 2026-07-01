@@ -14,6 +14,7 @@ export function LoginNew() {
     email: "",
     phone: "",
     nif: "",
+    password: "",
   });
 
   const handleNewClientSubmit = async (e) => {
@@ -27,10 +28,11 @@ export function LoginNew() {
         email: newClientData.email,
         telefone: newClientData.phone,
         nif: newClientData.nif,
+        password: newClientData.password,
       });
 
       toast.success(
-        "Pedido enviado com sucesso! Entraremos em contacto em breve.",
+        "Pedido enviado com sucesso! Assim que for aprovado, poderá fazer login com a sua password.",
       );
 
       setNewClientData({
@@ -39,6 +41,7 @@ export function LoginNew() {
         email: "",
         phone: "",
         nif: "",
+        password: "",
       });
 
       setTimeout(() => {
@@ -164,6 +167,23 @@ export function LoginNew() {
               }
               className="contact-input"
               placeholder="501234567"
+            />
+          </div>
+
+          <div>
+            <label className="d-block small fw-medium text-body" style={{ marginBottom: '0.5rem' }}>
+              Palavra-passe *
+            </label>
+            <input
+              type="password"
+              required
+              minLength={6}
+              value={newClientData.password}
+              onChange={(e) =>
+                setNewClientData({ ...newClientData, password: e.target.value })
+              }
+              className="contact-input"
+              placeholder="Mínimo 6 caracteres"
             />
           </div>
 
