@@ -4,17 +4,19 @@ import { api } from '../services/api'
 
 export function About() {
   const [content, setContent] = useState(null)
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     api.get('/empresas/public')
       .then(r => setContent(r.data))
       .catch(() => {}) // silencia erro, fallback para hardcoded
+      .finally(() => setLoading(false))
   }, [])
 
   const values = [
-    { icon: Target, title: 'Missão', description: content?.missao || 'Carregando...' },
-    { icon: Eye,    title: 'Visão',  description: content?.visao || 'Carregando...' },
-    { icon: Award,  title: 'Valores',description: content?.valores || 'Carregando...' },
+    { icon: Target, title: 'Missão', description: content?.missao ?? 'A definir...' },
+    { icon: Eye,    title: 'Visão',  description: content?.visao ?? 'A definir...' },
+    { icon: Award,  title: 'Valores',description: content?.valores ?? 'A definir...' },
   ]
 
   const stats = [

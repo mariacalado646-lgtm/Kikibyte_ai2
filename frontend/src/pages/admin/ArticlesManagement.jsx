@@ -276,7 +276,7 @@ export function ArticlesManagement() {
       {/* Modal */}
       {isDialogOpen && (
         <div className="modal d-block" style={{ background: 'rgba(0,0,0,.5)' }} onClick={closeDialog}>
-          <div className="modal-dialog modal-lg modal-dialog-scrollable" onClick={e => e.stopPropagation()}>
+          <div className="modal-dialog modal-lg" onClick={e => e.stopPropagation()}>
             <div className="modal-content">
 
               <div className="modal-header">
@@ -289,9 +289,9 @@ export function ArticlesManagement() {
                 <button className="btn-close" onClick={closeDialog} />
               </div>
 
-              <form onSubmit={handleSubmit}>
-                <div className="modal-body">
+              <div className="modal-body" style={{ maxHeight: '65vh', overflowY: 'auto' }}>
 
+                <form onSubmit={handleSubmit}>
                   <div className="mb-3">
                     <label className="form-label small fw-medium">Título *</label>
                     <input
@@ -381,17 +381,17 @@ export function ArticlesManagement() {
                     )}
                   </div>
 
-                </div>
+                  <div className="d-flex gap-2 mt-4">
+                    <button type="button" onClick={closeDialog} className="btn btn-outline-secondary flex-grow-1">
+                      Cancelar
+                    </button>
+                    <button type="submit" disabled={submitting} className="btn-kb-primary flex-grow-1 justify-content-center">
+                      {submitting ? 'A salvar...' : (editingArtigo ? 'Atualizar' : 'Criar')}
+                    </button>
+                  </div>
+                </form>
 
-                <div className="modal-footer">
-                  <button type="button" onClick={closeDialog} className="btn btn-outline-secondary flex-grow-1">
-                    Cancelar
-                  </button>
-                  <button type="submit" disabled={submitting} className="btn-kb-primary flex-grow-1 justify-content-center">
-                    {submitting ? 'A salvar...' : (editingArtigo ? 'Atualizar' : 'Criar')}
-                  </button>
-                </div>
-              </form>
+              </div>
 
             </div>
           </div>

@@ -67,12 +67,12 @@ export function ClientsManagement() {
   }
 
   const handleDelete = async (clientId) => {
-    if (!confirm('Tem a certeza que deseja arquivar este cliente?')) return
+    if (!confirm('Tem a certeza que deseja eliminar permanentemente este cliente? Esta ação não pode ser desfeita.')) return
     try {
       await adminClienteService.remover(clientId)
       carregarClientes()
     } catch (err) {
-      alert(err.response?.data?.error || 'Erro ao arquivar cliente')
+      alert(err.response?.data?.error || 'Erro ao eliminar cliente')
     }
   }
 
@@ -158,7 +158,7 @@ export function ClientsManagement() {
       <button onClick={() => handleEdit(client)} className="btn btn-sm btn-link kb-icon p-1" title="Editar">
       <Edit2 size={16} />
       </button>
-      <button onClick={() => handleDelete(client.id_cliente)} className="btn btn-sm btn-link text-danger p-1" title="Arquivar">
+      <button onClick={() => handleDelete(client.id_cliente)} className="btn btn-sm btn-link text-danger p-1" title="Eliminar">
       <Trash2 size={16} />
       </button>
       </div>

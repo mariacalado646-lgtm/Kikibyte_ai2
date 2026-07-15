@@ -37,6 +37,7 @@ export const siteContentService = {
 export const adminEmpresaService = {
     listar:   ()          => api.get('/empresas').then(r => r.data),
     obter:    (id)        => api.get(`/empresas/${id}`).then(r => r.data),
+    criar:    (data)      => api.post('/empresas', data).then(r => r.data),
 }
 
 // ── Contact Submissions ────────────────────────────────────────────

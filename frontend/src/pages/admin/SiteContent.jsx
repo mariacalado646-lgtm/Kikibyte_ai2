@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Save, Globe, Target, Eye, Award, FileText } from "lucide-react";
 import { toast } from "sonner";
-import { siteContentService } from "../../services/adminservice";
+import { siteContentService, adminEmpresaService } from "../../services/adminservice";
 
 export function SiteContent() {
   const [loading, setLoading] = useState(true);
@@ -22,7 +22,13 @@ export function SiteContent() {
   const loadContent = async () => {
     try {
       const data = await siteContentService.obter();
-      setContent((prev) => ({ ...prev, ...data }));
+      if (!data.id_empresa) {
+        // Nenhuma empresa na BD — criar uma automaticamente
+        const nova = await adminEmpresaService.criar({ nome: "KikiByte" });
+        setContent((prev) => ({ ...prev, id_empresa: nova.id_empresa, nome: nova.nome }));
+      } else {
+        setContent((prev) => ({ ...prev, ...data }));
+      }
     } catch (err) {
       console.error("Erro ao carregar conteúdo:", err);
       toast.error("Erro ao carregar conteúdo do site");
@@ -43,6 +49,7 @@ export function SiteContent() {
         visao: content.visao,
         valores: content.valores,
         descricao: content.descricao,
+        nome: content.nome,
       });
       toast.success("Conteúdo do site atualizado com sucesso!");
     } catch (err) {

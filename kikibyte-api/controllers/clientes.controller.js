@@ -115,11 +115,16 @@ export const removerCliente = async (req, res) => {
         const cliente = await Cliente.findByPk(req.params.id)
         if (!cliente) return res.status(404).json({ error: 'Cliente não encontrado' })
 
-        await cliente.update({ ativo: false, updated_at: new Date() })
-        res.json({ success: true })
+        // Apagar o utilizador associado (se existir)
+        await Utilizador.destroy({ where: { cliente_id: cliente.id_cliente } })
+
+        // Hard delete — remove o cliente diretamente da base de dados
+        await cliente.destroy()
+
+        res.json({ success: true, message: 'Cliente eliminado permanentemente' })
     } catch (err) {
         console.error('Erro ao remover cliente:', err)
-        res.status(500).json({ error: 'Erro ao remover cliente' })
+        res.status(500).json({ error: 'Erro ao remover cliente: ' + (err?.original?.detail || err.message) })
     }
 }
 

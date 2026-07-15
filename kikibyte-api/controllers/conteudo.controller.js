@@ -199,6 +199,9 @@ export const criarEmpresa = async (req, res) => {
         const { nome, nif, email, telefone, website, descricao, missao, visao, valores, logo_base64 } = req.body
         if (!nome) return res.status(400).json({ error: 'Nome é obrigatório' })
 
+        // Desativar empresas anteriores para evitar duplicados ativos
+        await Empresa.update({ ativo: false }, { where: { ativo: true } })
+
         const empresa = await Empresa.create({
             nome, nif, email, telefone, website, descricao, missao, visao, valores, logo_base64,
             ativo: true,
@@ -229,9 +232,11 @@ export const getSiteContent = async (req, res) => {
     try {
         const empresa = await Empresa.findOne({
             where: { ativo: true },
+            order: [['id_empresa', 'DESC']],
             attributes: ['id_empresa', 'nome', 'descricao', 'missao', 'visao', 'valores', 'logo_base64']
         })
         if (!empresa) return res.json({
+            id_empresa: null,
             nome: 'KikiByte',
             missao: '',
             visao: '',

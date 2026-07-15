@@ -5,24 +5,28 @@ import {
     listarPenTests, criarPenTest, removerPenTest
 } from '../controllers/ativos.controller.js'
 import { requireAuth } from '../middleware/auth.js'
+import { requirePermissao } from '../middleware/permissoes.js'
 
 const router = Router()
 
+// ─── Middleware global: autenticação + permissão de submissões ───
+router.use(requireAuth, requirePermissao('submissoes'))
+
 // ─── Ativos Tecnológicos ─────────────────────────────────────────
-router.get('/ativos-tecnologicos',               requireAuth, listarAtivos)
-router.post('/ativos-tecnologicos',              requireAuth, criarAtivo)
-router.post('/ativos-tecnologicos/importar-excel', requireAuth, importarAtivosExcel)
-router.delete('/ativos-tecnologicos/:id',        requireAuth, removerAtivo)
+router.get('/ativos-tecnologicos',               listarAtivos)
+router.post('/ativos-tecnologicos',              criarAtivo)
+router.post('/ativos-tecnologicos/importar-excel', importarAtivosExcel)
+router.delete('/ativos-tecnologicos/:id',        removerAtivo)
 
 // ─── Incidentes ──────────────────────────────────────────────────
-router.get('/incidentes',        requireAuth, listarIncidentes)
-router.post('/incidentes',       requireAuth, criarIncidente)
-router.put('/incidentes/:id',    requireAuth, atualizarIncidente)
-router.delete('/incidentes/:id', requireAuth, removerIncidente)
+router.get('/incidentes',        listarIncidentes)
+router.post('/incidentes',       criarIncidente)
+router.put('/incidentes/:id',    atualizarIncidente)
+router.delete('/incidentes/:id', removerIncidente)
 
 // ─── Pen Tests ───────────────────────────────────────────────────
-router.get('/pen-tests',        requireAuth, listarPenTests)
-router.post('/pen-tests',       requireAuth, criarPenTest)
-router.delete('/pen-tests/:id', requireAuth, removerPenTest)
+router.get('/pen-tests',        listarPenTests)
+router.post('/pen-tests',       criarPenTest)
+router.delete('/pen-tests/:id', removerPenTest)
 
 export default router

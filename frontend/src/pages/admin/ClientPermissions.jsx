@@ -29,6 +29,7 @@ export function ClientPermissions() {
   const loadPermissoes = async (clienteId) => {
     if (!clienteId) return;
     setLoading(true);
+    setPermissoes([]); // reset para nunca ficar null
     try {
       const data = await permissaoService.listarPorCliente(clienteId);
       // Normalizar para array independente do formato
@@ -37,6 +38,13 @@ export function ClientPermissions() {
     } catch (err) {
       toast.error("Erro ao carregar permissões");
       console.error(err);
+      setPermissoes(
+        FUNCIONALIDADES.map(f => ({
+          funcionalidade: f.key,
+          ativo: true,
+          cliente_id: parseInt(clienteId)
+        }))
+      );
     } finally {
       setLoading(false);
     }
@@ -48,18 +56,24 @@ export function ClientPermissions() {
   }, [selectedCliente]);
 
   const togglePermissao = (funcionalidade) => {
-    setPermissoes(prev =>
-      prev.map(p =>
+    setPermissoes(prev => {
+      if (!Array.isArray(prev) || prev.length === 0) return prev || []
+      return prev.map(p =>
         p.funcionalidade === funcionalidade ? { ...p, ativo: !p.ativo } : p
       )
-    );
+    });
   };
 
   const handleSave = async () => {
     if (!selectedCliente || !permissoes) return;
     setSaving(true);
     try {
-      await permissaoService.atualizar(selectedCliente, permissoes);
+      const data = await permissaoService.atualizar(selectedCliente, permissoes);
+      // Usar a resposta do servidor para atualizar o estado local
+      const updated = data.permissoes
+      if (Array.isArray(updated)) {
+        setPermissoes(updated)
+      }
       toast.success("Permissões atualizadas com sucesso!");
     } catch (err) {
       toast.error(err.response?.data?.error || "Erro ao salvar permissões");
@@ -69,7 +83,10 @@ export function ClientPermissions() {
   };
 
   const handleSelectAll = (value) => {
-    setPermissoes(prev => prev.map(p => ({ ...p, ativo: value })));
+    setPermissoes(prev => {
+      if (!Array.isArray(prev) || prev.length === 0) return prev || []
+      return prev.map(p => ({ ...p, ativo: value }))
+    });
   };
 
   const filteredClientes = clientes.filter(c =>

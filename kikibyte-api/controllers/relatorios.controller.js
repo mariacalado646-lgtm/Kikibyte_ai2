@@ -289,7 +289,6 @@ export const listarLogs = async (req, res) => {
 
         const logs = await Log.findAndCountAll({
             where,
-            include: [{ model: Utilizador, as: 'utilizador', attributes: ['id_utilizador', 'nome', 'email'] }],
             order: [['created_at', 'DESC']],
             limit: limit ? parseInt(limit) : 100,
             offset: offset ? parseInt(offset) : 0

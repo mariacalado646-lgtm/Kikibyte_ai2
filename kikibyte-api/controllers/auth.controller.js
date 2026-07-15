@@ -1,6 +1,7 @@
 import bcrypt from 'bcryptjs'
 import jwt from 'jsonwebtoken'
 import { Utilizador } from '../models/Utilizador.js'
+import { Log } from '../models/Log.js'
 import { Sequelize } from 'sequelize'
 
 const JWT_SECRET = process.env.JWT_SECRET || 'kikibyte_jwt_secret_key_2024'
@@ -26,6 +27,19 @@ export const login = async (req, res) => {
         if (!validPassword) return res.status(401).json({ error: 'Credenciais inválidas' })
 
         await user.update({ ultimo_login: new Date() })
+
+        // Registar log de login
+        Log.create({
+            utilizador_id: user.id_utilizador,
+            email: user.email,
+            role_id: user.role_id,
+            acao: 'LOGIN',
+            recurso: 'auth',
+            recurso_id: user.id_utilizador,
+            detalhes: JSON.stringify({ method: 'POST', path: '/api/auth/login' }),
+            ip: req.ip || req.socket?.remoteAddress,
+            created_at: new Date()
+        }).catch(err => console.error('Erro ao registar log:', err))
 
         const token = jwt.sign(
             {
