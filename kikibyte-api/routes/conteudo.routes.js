@@ -6,6 +6,7 @@ import {
     submitContact, getContactSubmissions
 } from '../controllers/conteudo.controller.js'
 import { requireAuth, requireRole } from '../middleware/auth.js'
+import { logAction } from '../middleware/logMiddleware.js'
 
 const router = Router()
 
@@ -17,16 +18,16 @@ router.get('/artigos/:slug',      getArtigoPorSlug)
 // ─── Artigos (admin CRUD) ────────────────────────────────────────
 router.get('/artigos/admin/todos',  requireAuth, requireRole(1), listarTodosArtigos)
 router.get('/artigos/admin/:id',    requireAuth, requireRole(1), obterArtigo)
-router.post('/artigos/admin',       requireAuth, requireRole(1), criarArtigo)
-router.put('/artigos/admin/:id',    requireAuth, requireRole(1), atualizarArtigo)
-router.delete('/artigos/admin/:id', requireAuth, requireRole(1), removerArtigo)
+router.post('/artigos/admin',       requireAuth, requireRole(1), logAction('CRIAR_ARTIGO'), criarArtigo)
+router.put('/artigos/admin/:id',    requireAuth, requireRole(1), logAction('ATUALIZAR_ARTIGO'), atualizarArtigo)
+router.delete('/artigos/admin/:id', requireAuth, requireRole(1), logAction('REMOVER_ARTIGO'), removerArtigo)
 
 // ─── Empresas ────────────────────────────────────────────────────
 router.get('/empresas/public', getSiteContent)
 router.get('/empresas',        requireAuth, listarEmpresas)
 router.get('/empresas/:id',    requireAuth, obterEmpresa)
-router.post('/empresas',       requireAuth, criarEmpresa)
-router.put('/empresas/:id',    requireAuth, atualizarEmpresa)
+router.post('/empresas',       requireAuth, logAction('CRIAR_EMPRESA'), criarEmpresa)
+router.put('/empresas/:id',    requireAuth, logAction('ATUALIZAR_EMPRESA'), atualizarEmpresa)
 
 // ─── Contact Form ────────────────────────────────────────────────
 router.post('/contact', submitContact)

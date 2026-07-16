@@ -31,13 +31,12 @@ export const login = async (req, res) => {
         // Registar log de login
         Log.create({
             utilizador_id: user.id_utilizador,
-            email: user.email,
-            role_id: user.role_id,
+            cliente_id: user.cliente_id || null,
             acao: 'LOGIN',
-            recurso: 'auth',
-            recurso_id: user.id_utilizador,
-            detalhes: JSON.stringify({ method: 'POST', path: '/api/auth/login' }),
-            ip: req.ip || req.socket?.remoteAddress,
+            entidade: 'auth',
+            entidade_id: user.id_utilizador,
+            ip_origem: req.ip || req.socket?.remoteAddress,
+            user_agent: req.headers?.['user-agent'] || null,
             created_at: new Date()
         }).catch(err => console.error('Erro ao registar log:', err))
 

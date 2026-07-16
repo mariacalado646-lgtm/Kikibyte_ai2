@@ -8,6 +8,7 @@ import {
 } from '../controllers/relatorios.controller.js'
 import { requireAuth, requireRole } from '../middleware/auth.js'
 import { requirePermissao } from '../middleware/permissoes.js'
+import { logAction } from '../middleware/logMiddleware.js'
 
 const router = Router()
 
@@ -19,7 +20,7 @@ router.use('/relatorios', requirePermissao('relatorios'))
 
 router.get('/relatorios',         listarRelatorios)
 router.get('/relatorios/:id',     obterRelatorio)
-router.post('/relatorios',        criarRelatorio)
+router.post('/relatorios',        logAction('CRIAR_RELATORIO'), criarRelatorio)
 
 // ─── Relatórios Anuais (apenas admin role 1) ─────────────────────
 router.use('/relatorios-anuais', requireRole(1))

@@ -5,6 +5,7 @@ import {
 } from '../controllers/comunicacao.controller.js'
 import { requireAuth } from '../middleware/auth.js'
 import { requirePermissao } from '../middleware/permissoes.js'
+import { logAction } from '../middleware/logMiddleware.js'
 
 const router = Router()
 
@@ -13,10 +14,10 @@ router.use(requireAuth, requirePermissao('mensagens'))
 
 // ─── Mensagens (de pedidos) ──────────────────────────────────────
 router.get('/mensagens',         listarMensagens)
-router.post('/mensagens',        criarMensagem)
+router.post('/mensagens',        logAction('ENVIAR_MENSAGEM'),       criarMensagem)
 
 // ─── Mensagens Diretas ───────────────────────────────────────────
 router.get('/mensagens-diretas',  listarMensagensDiretas)
-router.post('/mensagens-diretas', enviarMensagemDireta)
+router.post('/mensagens-diretas', logAction('ENVIAR_MENSAGEM_DIRETA'), enviarMensagemDireta)
 
 export default router
