@@ -58,17 +58,16 @@ export function LogsView() {
 
   const handleExport = () => {
     const csv = [
-      ["Data", "Utilizador", "Email", "Role", "Ação", "Recurso", "Detalhes", "IP"].join(","),
+      ["Data", "Utilizador", "Email", "Role", "Ação", "Entidade", "IP"].join(","),
       ...logs.map(l =>
         [
           l.created_at ? new Date(l.created_at).toISOString() : "",
-          l.utilizador?.nome || l.email || "",
-          l.email || "",
-          l.role_id || "",
+          l.utilizador?.nome || l.utilizador?.email || "Sistema",
+          l.utilizador?.email || "",
+          l.utilizador?.role_id || "",
           l.acao || "",
-          l.recurso || "",
-          l.detalhes || "",
-          l.ip || ""
+          l.entidade || "",
+          l.ip_origem || ""
         ].map(v => `"${(v || "").replace(/"/g, '""')}"`).join(",")
       )
     ].join("\n");
@@ -188,13 +187,13 @@ export function LogsView() {
                     <td style={{ padding: "0.6rem 1rem", whiteSpace: "nowrap" }}>
                       <span className="d-flex align-items-center" style={{ gap: "0.35rem" }}>
                         <User size={14} className="text-muted" />
-                        {log.utilizador?.nome || log.email || "Sistema"}
+                        {log.utilizador?.nome || "Sistema"}
                       </span>
                     </td>
                     <td style={{ padding: "0.6rem 1rem", whiteSpace: "nowrap" }}>
                       <span className="d-flex align-items-center" style={{ gap: "0.35rem" }}>
                         <Shield size={14} className="text-muted" />
-                        {roleLabel(log.role_id)}
+                        {roleLabel(log.utilizador?.role_id)}
                       </span>
                     </td>
                     <td style={{ padding: "0.6rem 1rem", whiteSpace: "nowrap" }}>
@@ -205,12 +204,12 @@ export function LogsView() {
                     <td style={{ padding: "0.6rem 1rem", maxWidth: "250px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", color: "#78716c", fontSize: "0.8rem" }}>
                       <span className="d-flex align-items-center" style={{ gap: "0.35rem" }}>
                         <Globe size={12} />
-                        {log.recurso || "-"}
-                        {log.recurso_id ? ` #${log.recurso_id}` : ""}
+                        {log.entidade || "-"}
+                        {log.entidade_id ? ` #${log.entidade_id}` : ""}
                       </span>
                     </td>
                     <td style={{ padding: "0.6rem 1rem", whiteSpace: "nowrap", color: "#78716c", fontSize: "0.75rem", fontFamily: "monospace" }}>
-                      {log.ip || "-"}
+                      {log.ip_origem || "-"}
                     </td>
                   </tr>
                 ))}

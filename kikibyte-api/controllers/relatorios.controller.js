@@ -291,7 +291,8 @@ export const listarLogs = async (req, res) => {
             where,
             order: [['created_at', 'DESC']],
             limit: limit ? parseInt(limit) : 100,
-            offset: offset ? parseInt(offset) : 0
+            offset: offset ? parseInt(offset) : 0,
+            include: [{ model: Utilizador, as: 'utilizador', attributes: ['id_utilizador', 'nome', 'email', 'role_id'] }]
         })
 
         res.json({ total: logs.count, data: logs.rows })
